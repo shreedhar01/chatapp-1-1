@@ -1,9 +1,9 @@
-function App() {
+import { Button } from "@/components/ui/button"
 
+function App() {
   return (
-    <div className="flex w-full h-screen justify-center items-center gap-4">
-      <p>hey</p>
-      <p>hey</p>
+    <div className="flex min-h-svh flex-col items-center justify-center">
+      <Button>Click me</Button>
     </div>
   )
 }
