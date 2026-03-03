@@ -1,11 +1,25 @@
-import express from "express"
-import { drizzle } from 'drizzle-orm/node-postgres';
-const db = drizzle(process.env.DATABASE_URL!);
+import express, { type NextFunction, type Request, type Response } from "express"
+import userRouter from "./api_v1/routes/user.routes.js"
+import type { ApiError } from "./utils/ApiError.js"
+
 
 const app = express()
 
+app.use(express.json())
+
 app.get("/",(_,res)=>{
     res.send("Backend is up and running")
+})
+
+app.use("/user",userRouter)
+
+app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
+    const statusCode = err.statusCode || 500
+    res.status(statusCode).json({
+        success: false,
+        message: err.message,
+        errors: err.error
+    })
 })
 
 app.listen(process.env.PORT,()=>{
