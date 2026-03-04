@@ -3,7 +3,7 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { loginUserSchema, registerUserSchema } from "../../types/dbLevel.types.js";
 import { ApiError } from "../../utils/ApiError.js"
 import { ApiResponse } from "../../utils/ApiResponse.js";
-import { loginUserService, registerUserService } from "../../services/user.service.js";
+import { loginUserService, logoutUserService, registerUserService } from "../../services/user.service.js";
 
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
     const userData = req.body
@@ -50,4 +50,11 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
         .json(
             new ApiResponse(200, [{ name, email }], "Login Success")
         )
+})
+
+export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
+    await logoutUserService(req.user!.id)
+    return res.status(200).clearCookie("login").json(
+        new ApiResponse(200, [], "Logout Success")
+    )
 })

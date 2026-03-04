@@ -52,3 +52,10 @@ export const loginUserService = async (data: LoginUser) => {
         email: isUserExist.email
     }
 }
+
+
+export const logoutUserService = async (data: number) => {
+    await db.update(users)
+        .set({ status: "offline" })
+        .where(eq(users.id, data));
+}
