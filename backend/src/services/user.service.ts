@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { users } from "../db/schema.js";
-import type { RegisterUser } from "../types/dbLevel.types.js";
+import type { LoginUser, RegisterUser } from "../types/dbLevel.types.js";
 import { ApiError } from "../utils/ApiError.js";
 import { hashPassword } from "../utils/bcrypt.js";
 import { signJwt } from "../utils/jwt.js";
@@ -22,11 +22,33 @@ export const registerUserService = async (data: RegisterUser) => {
         throw new ApiError(500, "Unable to register try again")
     }
 
-    const token = await signJwt({ id: userRegistered.id.toString(), name: userRegistered.name })
+    const token = await signJwt({
+        id: userRegistered.id.toString(),
+        name: userRegistered.name
+    })
 
     return {
         token,
         name: userRegistered.name,
         email: userRegistered.email
+    }
+}
+
+
+export const loginUserService = async (data: LoginUser) => {
+    const [isUserExist] = await db.select().from(users).where(eq(users.email, data.email));
+    if (!isUserExist) {
+        throw new ApiError(400, "User doesn't exist")
+    }
+
+    const token = await signJwt({
+        id: isUserExist.id.toString(),
+        name: isUserExist.name
+    })
+
+    return {
+        token,
+        name: isUserExist.name,
+        email: isUserExist.email
     }
 }

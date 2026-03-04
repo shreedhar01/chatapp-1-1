@@ -10,11 +10,11 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-app.get("/",(_,res)=>{
+app.get("/", (_, res) => {
     res.send("Backend is up and running")
 })
 
-app.use("/user",userRouter)
+app.use("/user", userRouter)
 
 app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
     const statusCode = err.statusCode || 500
@@ -25,6 +25,6 @@ app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
     })
 })
 
-app.listen(process.env.PORT,()=>{
-     console.log("Listening on port ",process.env.PORT)
+app.listen(process.env.PORT, () => {
+    console.log("Listening on port ", process.env.PORT)
 })

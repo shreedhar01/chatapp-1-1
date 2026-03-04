@@ -18,3 +18,16 @@ export const registerUserSchema = createInsertSchema(users)
     email: z.string().min(6).max(255),
   });
 export type RegisterUser = z.infer<typeof registerUserSchema>;
+
+
+export const loginUserSchema = createInsertSchema(users)
+  .omit({
+    name: true,
+    status: true,
+    last_seen: true,
+    created_at: true
+  })
+  .extend({
+    email: z.string().min(6).max(255),
+  });
+export type LoginUser = z.infer<typeof loginUserSchema>;
