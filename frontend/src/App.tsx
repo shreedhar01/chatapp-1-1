@@ -1,6 +1,8 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom"
 import { HomePage } from "./pages/Home"
 import { Provider } from "./providers/react-query.provider"
+import { Dashboard } from "./pages/Dashboard"
+import { useAuth } from "./providers/AuthContext.provider"
 
 
 
@@ -10,6 +12,10 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </Provider>
@@ -17,3 +23,11 @@ function App() {
 }
 
 export default App
+
+
+const ProtectedRoute = () => {
+  const { user } = useAuth()
+
+  if (!user) return <Navigate to="/" replace />
+  return <Outlet />
+}

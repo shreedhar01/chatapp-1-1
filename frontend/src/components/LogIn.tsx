@@ -12,6 +12,7 @@ import { useLogIn } from "@/lib/api/hooks/auth"
 import { loginSchema } from "@/schema/auth.schema"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { useState, type SubmitEventHandler } from "react"
+import { useNavigate } from "react-router-dom"
 
 export const LogIn = () => {
     const [email, setEmail] = useState("")
@@ -20,6 +21,7 @@ export const LogIn = () => {
     const [errors, setErrors] = useState<Map<string, string>>(new Map())
 
     const loginMutation = useLogIn()
+    const navigate = useNavigate()
 
     const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
         e.preventDefault()
@@ -34,6 +36,7 @@ export const LogIn = () => {
             onSuccess:()=>{
                 setEmail("")
                 setPassword("")
+                navigate("/dashboard")
             }
         })
     }
