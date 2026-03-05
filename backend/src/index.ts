@@ -2,10 +2,12 @@ import express, { type NextFunction, type Request, type Response } from "express
 import userRouter from "./api_v1/routes/user.routes.js"
 import type { ApiError } from "./utils/ApiError.js"
 import cookieParser from "cookie-parser"
+import cors from "cors"
 
 
 const app = express()
 
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
