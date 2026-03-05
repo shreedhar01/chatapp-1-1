@@ -46,8 +46,8 @@ export const SignUp = () => {
             setErrors(newError)
             return
         }
-        await signUpMutation.mutate(validData.data,{
-            onSuccess:()=>{
+        await signUpMutation.mutate(validData.data, {
+            onSuccess: () => {
                 setName("")
                 setEmail("")
                 setPassword("")
@@ -102,6 +102,7 @@ export const SignUp = () => {
                                         required
                                     />
                                     <Button
+                                        type="button"
                                         onClick={() => setViewPass(!viewPass)}
                                     >
                                         {viewPass ? <EyeIcon /> : <EyeOffIcon />}
