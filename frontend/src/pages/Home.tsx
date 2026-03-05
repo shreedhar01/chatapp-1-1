@@ -18,7 +18,7 @@ export const HomePage = () => {
                 <ModeToggle />
             </div>
             <div className="flex w-full items-center justify-center pt-8">
-                <Tabs defaultValue="overview" className="w-100">
+                <Tabs defaultValue="signup" className="w-100">
                     <TabsList className="w-full">
                         <TabsTrigger value="signup">Sign Up</TabsTrigger>
                         <TabsTrigger value="login">Log In</TabsTrigger>
