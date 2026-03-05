@@ -1,18 +1,18 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { HomePage } from "./pages/Home"
-import { ThemeProvider } from "@/components/theme-provider"
+import { Provider } from "./providers/react-query.provider"
+
 
 
 function App() {
   return (
-    <ThemeProvider>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={ <HomePage/>}/>
-      </Routes>
-    </BrowserRouter>
-
-    </ThemeProvider>
+    <Provider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+        </Routes>
+      </BrowserRouter>
+    </Provider>
   )
 }
 
