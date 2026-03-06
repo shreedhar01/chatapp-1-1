@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from "react";
+import { api } from "@/lib/api/axios";
+import { createContext, useContext, useEffect, useState } from "react";
 
 
 interface UserData {
@@ -8,6 +9,7 @@ interface UserData {
 
 interface AuthContextType {
     user: UserData | null
+    loading : boolean
     login: (userData: UserData) => void
     logout: () => void
 }
@@ -22,10 +24,19 @@ export const useAuth = () => {
 
 export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<UserData | null>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        api.get("/user")
+            .then(res => setUser(res.data))
+            .catch(() => setUser(null))
+            .finally(() => setLoading(false))
+    },[])
+
     const login = (userData: UserData) => setUser(userData)
     const logout = () => setUser(null)
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     )

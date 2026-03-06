@@ -3,19 +3,16 @@ import { api } from "../axios";
 import toast from "react-hot-toast";
 import type { LogInSchema, SignUpSchema } from "@/schema/auth.schema";
 import axios from "axios";
-import { useAuth } from "@/providers/AuthContext.provider";
 
 export function useSignup() {
-    const { login } = useAuth()
-
     return useMutation({
+        mutationKey:["signup"],
         mutationFn: async (input: SignUpSchema) => {
             const response = await api.post("/user", input);
             return response.data;
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             toast.success("User Register Successfully");
-            login({ name: data?.name, email: data?.email })
         },
         onError: (error) => {
             if (axios.isAxiosError(error)) {
@@ -30,16 +27,15 @@ export function useSignup() {
 
 
 export function useLogIn() {
-    const { login } = useAuth()
 
     return useMutation({
+        mutationKey: ["login"],
         mutationFn: async (input: LogInSchema) => {
             const response = await api.post("/user/login", input);
             return response.data;
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             toast.success("User Login Successfully");
-            login({ name: data?.name, email: data?.email })
         },
         onError: (error) => {
             if (axios.isAxiosError(error)) {

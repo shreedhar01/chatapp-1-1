@@ -4,6 +4,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { AuthContextProvider } from './AuthContext.provider'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { SidebarProvider } from '@/components/ui/sidebar'
 
 export function Provider({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient({
@@ -19,12 +21,16 @@ export function Provider({ children }: { children: React.ReactNode }) {
         <AuthContextProvider>
             <QueryClientProvider client={queryClient}>
                 <ThemeProvider>
-                    {children}
-                    <Toaster
-                        position="bottom-right"
-                        reverseOrder={false}
-                    />
-                    <ReactQueryDevtools initialIsOpen={false} />
+                    <TooltipProvider>
+                        <SidebarProvider>
+                            {children}
+                            <Toaster
+                                position="bottom-right"
+                                reverseOrder={false}
+                            />
+                            <ReactQueryDevtools initialIsOpen={false} />
+                        </SidebarProvider>
+                    </TooltipProvider>
                 </ThemeProvider>
             </QueryClientProvider>
         </AuthContextProvider>
