@@ -58,3 +58,10 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
         new ApiResponse(200, [], "Logout Success")
     )
 })
+
+export const me = asyncHandler(async (req:Request, res: Response)=>{
+    const {name, email} = req.user!
+    return res.status(200).json(
+        new ApiResponse(200, [{name, email}], "Cool it's me")
+    )
+})

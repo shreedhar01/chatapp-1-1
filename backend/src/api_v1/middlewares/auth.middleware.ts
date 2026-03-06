@@ -27,7 +27,8 @@ export const authorizeUser = asyncHandler(async (req: Request, res: Response, ne
 
     req.user = {
         id: validUser.id,
-        name: validUser.name
+        name: validUser.name,
+        email: validUser.email
     }
     
     next()
