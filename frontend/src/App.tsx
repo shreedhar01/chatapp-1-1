@@ -12,11 +12,15 @@ function App() {
     <Provider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+
+          <Route element={<PublicRoute />}>
+            <Route path="/" element={<HomePage />} />
+          </Route>
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
+
         </Routes>
       </BrowserRouter>
     </Provider>
@@ -30,8 +34,18 @@ const ProtectedRoute = () => {
   const { user, loading } = useAuth()
 
   if (loading) return <div className="flex w-full h-screen items-center justify-center ">
-    <Spinner className=" size-20 "/>
+    <Spinner className=" size-20 " />
   </div>
   if (!user) return <Navigate to="/" replace />
+  return <Outlet />
+}
+
+const PublicRoute = () => {
+  const { user, loading } = useAuth()
+
+  if (loading) return <div className="flex w-full h-screen items-center justify-center ">
+    <Spinner className=" size-20 " />
+  </div>
+  if (user) return <Navigate to="/dashboard" replace />
   return <Outlet />
 }

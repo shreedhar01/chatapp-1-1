@@ -32,13 +32,7 @@ export const LogIn = () => {
             setErrors(newMap)
             return
         }
-        await loginMutation.mutate(validData.data,{
-            onSuccess:()=>{
-                setEmail("")
-                setPassword("")
-                navigate("/dashboard")
-            }
-        })
+        await loginMutation.mutate(validData.data)
     }
 
     return (

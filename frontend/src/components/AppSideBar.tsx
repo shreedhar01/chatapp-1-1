@@ -2,11 +2,16 @@ import { LogOutIcon, MessageSquareTextIcon, SettingsIcon, UserRoundPlusIcon } fr
 import { ModeToggle } from "./mode-toggle"
 import { Button } from "./ui/button"
 import { useState } from "react"
+import { useLogOut } from "@/lib/api/hooks/auth"
+import { useNavigate } from "react-router-dom"
 
 export const AppSideBar = () => {
     const [chat, setChat] = useState(true)
     const [addUser, setAddUser] = useState(false)
     const [setting, setSetting] = useState(false)
+
+    const logOutMutation = useLogOut()
+    const navigate = useNavigate()
 
     return (
         <>
@@ -19,7 +24,6 @@ export const AppSideBar = () => {
                                 setChat(true)
                                 setAddUser(false)
                                 setSetting(false)
-
                             }}
                         >
                             <MessageSquareTextIcon />
@@ -30,7 +34,6 @@ export const AppSideBar = () => {
                                 setChat(false)
                                 setAddUser(true)
                                 setSetting(false)
-
                             }}
                         >
                             <UserRoundPlusIcon />
@@ -51,7 +54,9 @@ export const AppSideBar = () => {
                         </Button>
                         <Button
                             title="LogOut"
-                            // onClick={}
+                            onClick={async()=>{
+                                await logOutMutation.mutate()
+                            }}
                         >
                             <LogOutIcon />
                         </Button>
