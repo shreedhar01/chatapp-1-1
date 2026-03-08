@@ -10,7 +10,8 @@
     "dev": "tsx watch -r dotenv/config src/index.ts",
     "db:push": "npx drizzle-kit push",
     "db:migrate:generate": "npx drizzle-kit generate",
-    "db:migrate:push": "npx drizzle-kit migrate"
+    "db:migrate:push": "npx drizzle-kit migrate",
+    "db:seed":"tsx -r dotenv/config src/db/seed/index.ts"
   },
   "keywords": [],
   "author": "",
