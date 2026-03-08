@@ -1,10 +1,12 @@
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSideBar } from "@/components"
 
-export const Dashboard = ()=>{
+export const Dashboard = () => {
     return (
-        <div>
-            <SidebarTrigger />
-            dashboard
+        <div className="flex w-full">
+            <AppSideBar />
+            
+                dashboard
+           
         </div>
     )
 }

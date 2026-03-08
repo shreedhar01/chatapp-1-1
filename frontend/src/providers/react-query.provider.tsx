@@ -4,7 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { AuthContextProvider } from './AuthContext.provider'
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip'
 import { SidebarProvider } from '@/components/ui/sidebar'
 
 export function Provider({ children }: { children: React.ReactNode }) {
@@ -22,14 +22,16 @@ export function Provider({ children }: { children: React.ReactNode }) {
             <QueryClientProvider client={queryClient}>
                 <ThemeProvider>
                     <TooltipProvider>
-                        <SidebarProvider>
-                            {children}
-                            <Toaster
-                                position="bottom-right"
-                                reverseOrder={false}
-                            />
-                            <ReactQueryDevtools initialIsOpen={false} />
-                        </SidebarProvider>
+                        <Tooltip>
+                            <SidebarProvider>
+                                {children}
+                                <Toaster
+                                    position="bottom-right"
+                                    reverseOrder={false}
+                                />
+                                <ReactQueryDevtools initialIsOpen={false} />
+                            </SidebarProvider>
+                        </Tooltip>
                     </TooltipProvider>
                 </ThemeProvider>
             </QueryClientProvider>
