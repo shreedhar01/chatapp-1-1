@@ -3,6 +3,7 @@ import userRouter from "./api_v1/routes/user.routes.js"
 import type { ApiError } from "./utils/ApiError.js"
 import cookieParser from "cookie-parser"
 import cors from "cors"
+import friendsRouter from "./api_v1/routes/friends.routes.js"
 
 
 const app = express()
@@ -25,6 +26,7 @@ app.get("/", (_, res) => {
 })
 
 app.use("/user", userRouter)
+app.use("/friend", friendsRouter)
 
 app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
     const statusCode = err.statusCode || 500
