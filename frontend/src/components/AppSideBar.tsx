@@ -3,7 +3,9 @@ import { ModeToggle } from "./mode-toggle"
 import { Button } from "./ui/button"
 import { useState } from "react"
 import { useLogOut } from "@/lib/api/hooks/auth"
-import { useNavigate } from "react-router-dom"
+import { SearchFriends } from "./SearchFriends"
+import { SettingsSection } from "./SettingsSection"
+import { ChatSection } from "./ChatSection"
 
 export const AppSideBar = () => {
     const [chat, setChat] = useState(true)
@@ -11,13 +13,12 @@ export const AppSideBar = () => {
     const [setting, setSetting] = useState(false)
 
     const logOutMutation = useLogOut()
-    const navigate = useNavigate()
 
     return (
         <>
-            <div className="flex h-screen w-33/100">
-                <div className="flex flex-col justify-between items-center w-10/100 p-4">
-                    <div className="flex flex-col gap-4">
+            <div className="flex flex-col-reverse md:flex-row h-screen w-full">
+                <div className="flex md:flex-col gap-8 md:gap-0 justify-center md:justify-between items-center md:w-16 p-4 md:m-2 mx-2 mb-2 border border-gray-500 rounded-2xl shadow-2xl">
+                    <div className="flex md:flex-col gap-8 md:gap-4">
                         <Button
                             title="Chat"
                             onClick={() => {
@@ -25,6 +26,10 @@ export const AppSideBar = () => {
                                 setAddUser(false)
                                 setSetting(false)
                             }}
+                            className={`${chat ? 
+                                "text-white dark:text-black":
+                                "text-white hover:bg-gray-400 bg-gray-500"
+                            }`}
                         >
                             <MessageSquareTextIcon />
                         </Button>
@@ -35,11 +40,15 @@ export const AppSideBar = () => {
                                 setAddUser(true)
                                 setSetting(false)
                             }}
+                            className={`${addUser ? 
+                                "text-white dark:text-black":
+                                "text-white hover:bg-gray-400 bg-gray-500"
+                            }`}
                         >
                             <UserRoundPlusIcon />
                         </Button>
                     </div>
-                    <div className="flex flex-col items-center gap-4">
+                    <div className="flex md:flex-col items-center gap-8 md:gap-4">
                         <ModeToggle />
                         <Button
                             title="Settings"
@@ -49,21 +58,28 @@ export const AppSideBar = () => {
                                 setSetting(true)
 
                             }}
+                            className={`${setting ? 
+                                "text-white dark:text-black":
+                                "text-white hover:bg-gray-400 bg-gray-500"
+                            }`}
                         >
                             <SettingsIcon />
                         </Button>
                         <Button
                             title="LogOut"
-                            onClick={async()=>{
+                            onClick={async () => {
                                 await logOutMutation.mutate()
                             }}
+                            className="text-white hover:bg-gray-400 bg-gray-500"
                         >
                             <LogOutIcon />
                         </Button>
                     </div>
                 </div>
-                <div className="bg-red-500 w-90/100">
-                    hey
+                <div className="flex-1 flex flex-col md:h-screen">
+                    {chat ? <ChatSection /> : null}
+                    {addUser ? <SearchFriends /> : null}
+                    {setting ? <SettingsSection /> : null}
                 </div>
             </div >
         </>
