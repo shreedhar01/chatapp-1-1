@@ -4,7 +4,7 @@ import { users } from "../db/schema.js";
 import type { SearchFriend } from "../types/friends.types.js";
 import { ApiError } from "../utils/ApiError.js";
 
-export const searchFriendService = async (data: SearchFriend, page = 1, limit = 10) => {
+export const searchFriendService = async (data: SearchFriend, page = 1, limit = 20) => {
     const offset = (page - 1) * limit
     const allResult = await db
         .select({
