@@ -76,7 +76,7 @@ export const AppSideBar = () => {
                         </Button>
                     </div>
                 </div>
-                <div className="flex-1 flex flex-col md:h-screen">
+                <div className="flex-1 flex flex-col h-full min-h-0">
                     {chat ? <ChatSection /> : null}
                     {addUser ? <SearchFriends /> : null}
                     {setting ? <SettingsSection /> : null}
