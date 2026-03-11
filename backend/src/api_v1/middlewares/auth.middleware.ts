@@ -7,10 +7,11 @@ import { users } from "../../db/schema.js";
 import { eq } from "drizzle-orm";
 
 export const authorizeUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies.login
+    const token = req.cookies.login || req.headers.authorization?.split(" ")[1]
     if(!token){
         throw new ApiError(400,"No cookie provided")
     }
+
     
     const validToken = await verifyJwt(token)
     if(!validToken){
