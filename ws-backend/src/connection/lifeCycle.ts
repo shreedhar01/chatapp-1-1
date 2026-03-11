@@ -2,6 +2,7 @@ import { Socket, Server } from "socket.io";
 import { verifyJwt } from "../utils/jwt.js";
 import { config } from "../config/env.js";
 import { addConnection, removeConnection } from "./connectionManagement.js";
+import { friendRequestHandler } from "../handlers/friendRequestHandler.js";
 
 export async function handleConnection(socket:Socket,io:Server) {
     const cookieHeader = socket.handshake.headers.cookie || ""
@@ -14,6 +15,7 @@ export async function handleConnection(socket:Socket,io:Server) {
         socket.data.id = userId
         
         addConnection(userId, socket)
+        friendRequestHandler(socket, cookieHeader)
         
         socket.on("disconnect", ()=>{
             removeConnection(userId)
