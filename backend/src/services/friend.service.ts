@@ -37,8 +37,8 @@ export const searchFriendService = async (data: SearchFriend, page = 1, limit = 
 }
 
 export const friendRequestService = async (data: FriendRequest) => {
-    const senderId = Number(data.senderId)
-    const to = Number(data.to)
+    const senderId = Math.min(Number(data.senderId),Number(data.to))
+    const to = Math.max(Number(data.senderId),Number(data.to))
 
     if (isNaN(senderId) || isNaN(to)) {
         throw new ApiError(400, `Invalid IDs — senderId: ${data.senderId}, to: ${data.to}`)
@@ -72,8 +72,9 @@ export const friendRequestService = async (data: FriendRequest) => {
     }
 
     const [friendRequest] = await db.insert(friendship).values({
-        user_id: Number(data.senderId),
-        friend_id: Number(data.to),
+        user_id: senderId,
+        friend_id: to,
+        sender_id: Number(data.senderId),
         status: "pending"
     }).returning({
         id: friendship.id,
