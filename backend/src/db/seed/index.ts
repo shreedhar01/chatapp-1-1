@@ -1,7 +1,9 @@
+import { seedFriendTable } from './friendRequest.seed.js';
 import { seedUsersTable } from './user.seed.js';
 
 async function main() {
   await seedUsersTable();
+  await seedFriendTable();
   console.log('All seeds done');
   process.exit(0);
 }
