@@ -36,6 +36,7 @@ export const friendship = pgTable("friendship", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   user_id: integer().notNull().references(() => users.id, { onDelete: "cascade" }),
   friend_id: integer().notNull().references(() => users.id, { onDelete: "cascade" }),
+  sender_id: integer().notNull().references(()=> users.id,{onDelete:"cascade"}),
   status: friendshipStatusDrizzler().default("pending"),
   created_at: timestamp().defaultNow()
 }, (table) => [
