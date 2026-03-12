@@ -12,10 +12,11 @@ export function friendRequestHandler(socket: Socket) {
             }
             const senderId = socket.data.id
             // console.log(`SenderId :: ${senderId} , Token :: ${JSON.stringify(socket.data.token)}`)
-            // console.log(`senderId ${senderId} data :: ${data.to}`)
+
+            console.log(`senderId ${senderId} data :: ${data.to}`)
             const response = await axios.post(`${config.REST_API_BACKEND}/friend/add`, {
                 senderId: String(senderId),
-                to: data.to
+                to: String(data.to)
             }, {
                 headers: {
                     Authorization: `Bearer ${socket.data.token}`
@@ -26,7 +27,7 @@ export function friendRequestHandler(socket: Socket) {
             const saveFriendRequest = response.data
             console.log("log from ws backend :: ", saveFriendRequest)
 
-            sendEvents(data.to, "friend_request", {
+            sendEvents(String(data.to), "friend_request", {
                 from: senderId,
                 name: saveFriendRequest.name
             })
