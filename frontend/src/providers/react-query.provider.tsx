@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthContextProvider } from './AuthContext.provider'
 import { Tooltip, TooltipProvider } from '@/components/ui/tooltip'
 import { SidebarProvider } from '@/components/ui/sidebar'
+import { SocketProvider } from './Socket.provider'
 
 export function Provider({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient({
@@ -19,22 +20,24 @@ export function Provider({ children }: { children: React.ReactNode }) {
 
     return (
         <AuthContextProvider>
-            <QueryClientProvider client={queryClient}>
-                <ThemeProvider>
-                    <TooltipProvider>
-                        <Tooltip>
-                            <SidebarProvider>
-                                {children}
-                                <Toaster
-                                    position="bottom-right"
-                                    reverseOrder={false}
-                                />
-                                <ReactQueryDevtools initialIsOpen={false} />
-                            </SidebarProvider>
-                        </Tooltip>
-                    </TooltipProvider>
-                </ThemeProvider>
-            </QueryClientProvider>
+            <SocketProvider>
+                <QueryClientProvider client={queryClient}>
+                    <ThemeProvider>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <SidebarProvider>
+                                    {children}
+                                    <Toaster
+                                        position="bottom-right"
+                                        reverseOrder={false}
+                                    />
+                                    <ReactQueryDevtools initialIsOpen={false} />
+                                </SidebarProvider>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </ThemeProvider>
+                </QueryClientProvider>
+            </SocketProvider>
         </AuthContextProvider>
     )
 }
