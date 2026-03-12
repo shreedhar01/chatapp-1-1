@@ -37,11 +37,18 @@ export const searchFriendService = async (data: SearchFriend, page = 1, limit = 
 }
 
 export const friendRequestService = async (data: FriendRequest) => {
+    const senderId = Number(data.senderId)
+    const to = Number(data.to)
+
+    if (isNaN(senderId) || isNaN(to)) {
+        throw new ApiError(400, `Invalid IDs — senderId: ${data.senderId}, to: ${data.to}`)
+    }
+
     const [[isUserExist], [isRequestExist]] = await Promise.all([
         db
             .select({ id: users.id })
             .from(users)
-            .where(eq(users.id, Number(data.to)))
+            .where(eq(users.id, senderId))
             .limit(1),
 
         db
@@ -50,7 +57,7 @@ export const friendRequestService = async (data: FriendRequest) => {
             .where(
                 and(
                     eq(friendship.user_id, Number(data.senderId)),
-                    eq(friendship.friend_id, Number(data.to))
+                    eq(friendship.friend_id, to)
                 )
             )
             .limit(1)
