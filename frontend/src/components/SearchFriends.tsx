@@ -4,12 +4,14 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 import { useEffect, useState, useRef } from "react";
 import { useSearchFriends } from "@/lib/api/hooks/friends";
+import { useSocket } from "@/providers/Socket.provider";
 
 export const SearchFriends = () => {
     const [name, setName] = useState("")
     const [debouncedName, setDebouncedName] = useState("")
     const sentinelRef = useRef<HTMLDivElement>(null)
-    console.log("ref :: ", sentinelRef)
+    const socket = useSocket()
+    // console.log("ref :: ", sentinelRef)
 
     useEffect(() => {
         if (!name) return
@@ -30,7 +32,7 @@ export const SearchFriends = () => {
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
-                console.log("entries :: ", entries)
+                // console.log("entries :: ", entries)
                 if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
                     fetchNextPage()
                 }
@@ -60,9 +62,10 @@ export const SearchFriends = () => {
                                     className="flex items-center justify-between bg-gray-100 dark:bg-gray-900 border p-2 rounded-xl"
                                 >
                                     <p>{v.name}</p>
-                                    <Button 
-                                    title="Send Friend Request"
-                                    className="bg-gray-500 hover:bg-gray-700 dark:hover:bg-gray-100"
+                                    <Button
+                                        title="Send Friend Request"
+                                        className="bg-gray-500 hover:bg-gray-700 dark:hover:bg-gray-100"
+                                        onClick={() => socket.emit("add_friend", { to: v.id })}
                                     >
                                         <PlusIcon />
                                     </Button>

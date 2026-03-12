@@ -10,11 +10,11 @@ export function useSearchFriends(name: string) {
             const response = await api.post("/friend/search", { name }, {
                 params: { page: pageParam, limit: 20 }
             })
-            console.log("infinite :: ", response.data.data)
+            // console.log("infinite :: ", response.data.data)
             return response.data.data as FriendData
         },
         getNextPageParam: (lastPage) => {
-            console.log("lst page :: ", lastPage)
+            // console.log("lst page :: ", lastPage)
             const pagination = lastPage[0].pagination
             return pagination.hasNext ? pagination.page + 1 : undefined
         },
