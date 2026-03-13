@@ -16,7 +16,7 @@ export const searchFriendController = asyncHandler(async (req: Request, res: Res
         const err = validData.error.issues.map((v) => ({ path: v.path, message: v.message }))
         throw new ApiError(400, "Provide Name", err)
     }
-    const friends = await searchFriendService(validData.data,pageNumber, limitNumber)
+    const friends = await searchFriendService(validData.data,pageNumber, limitNumber, req.user?.id!)
     return res.status(200).json(
         new ApiResponse(200, [friends], "search result featch successfully")
     )

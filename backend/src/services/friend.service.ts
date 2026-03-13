@@ -1,10 +1,10 @@
-import { and, eq, ilike, sql } from "drizzle-orm";
+import { and, eq, ilike, notExists, or, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { friendship, users } from "../db/schema.js";
 import type { FriendRequest, SearchFriend } from "../types/friends.types.js";
 import { ApiError } from "../utils/ApiError.js";
 
-export const searchFriendService = async (data: SearchFriend, page = 1, limit = 20) => {
+export const searchFriendService = async (data: SearchFriend, page = 1, limit = 20, currentUserId:number) => {
     const offset = (page - 1) * limit
     const allResult = await db
         .select({
@@ -13,7 +13,28 @@ export const searchFriendService = async (data: SearchFriend, page = 1, limit = 
             count: sql<number>`count(*) over()`
         })
         .from(users)
-        .where(ilike(users.name, `${data.name}%`))
+        .where(and(
+            ilike(users.name, `${data.name}%`),
+            notExists(
+                db
+                .select({id: sql`1`})
+                .from(friendship)
+                .where(
+                    or(
+                        and(
+                            eq(friendship.user_id,users.id),
+                            eq(friendship.friend_id,currentUserId)
+                        ),
+                        and(
+                            eq(friendship.friend_id,users.id),
+                            eq(friendship.user_id,currentUserId)
+                        )
+                    )
+                )
+            )
+
+        )
+        )
         .orderBy(users.name)
         .limit(limit)
         .offset(offset)
