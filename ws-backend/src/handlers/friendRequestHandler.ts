@@ -5,7 +5,7 @@ import { config } from "../config/env.js";
 import { sendEvents } from "../events/sendEvents.js";
 
 export function friendRequestHandler(socket: Socket) {
-    socket.on("add_friend", async (data: AddFriendEvent) => {
+    socket.on("friend:add", async (data: AddFriendEvent) => {
         try {
             if (typeof data === "string") {
                 data = JSON.parse(data);
@@ -27,7 +27,11 @@ export function friendRequestHandler(socket: Socket) {
             const saveFriendRequest = response.data
             console.log("log from ws backend :: ", saveFriendRequest)
 
-            sendEvents(String(data.to), "friend_request", {
+            sendEvents(senderId,"friend:request_sent",{
+                to: String(data.to)
+            })
+
+            sendEvents(String(data.to), "friend:request_received", {
                 from: senderId,
                 name: saveFriendRequest.name
             })
