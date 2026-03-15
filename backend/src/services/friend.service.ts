@@ -1,10 +1,10 @@
-import { and, eq, ilike, notExists, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, ne, notExists, or, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { friendship, users } from "../db/schema.js";
 import type { FriendRequest, SearchFriend } from "../types/friends.types.js";
 import { ApiError } from "../utils/ApiError.js";
 
-export const searchFriendService = async (data: SearchFriend, page = 1, limit = 20, currentUserId:number) => {
+export const searchFriendService = async (data: SearchFriend, page = 1, limit = 20, currentUserId: number) => {
     const offset = (page - 1) * limit
     const allResult = await db
         .select({
@@ -17,20 +17,20 @@ export const searchFriendService = async (data: SearchFriend, page = 1, limit = 
             ilike(users.name, `${data.name}%`),
             notExists(
                 db
-                .select({id: sql`1`})
-                .from(friendship)
-                .where(
-                    or(
-                        and(
-                            eq(friendship.user_id,users.id),
-                            eq(friendship.friend_id,currentUserId)
-                        ),
-                        and(
-                            eq(friendship.friend_id,users.id),
-                            eq(friendship.user_id,currentUserId)
+                    .select({ id: sql`1` })
+                    .from(friendship)
+                    .where(
+                        or(
+                            and(
+                                eq(friendship.user_id, users.id),
+                                eq(friendship.friend_id, currentUserId)
+                            ),
+                            and(
+                                eq(friendship.friend_id, users.id),
+                                eq(friendship.user_id, currentUserId)
+                            )
                         )
                     )
-                )
             )
 
         )
@@ -57,9 +57,10 @@ export const searchFriendService = async (data: SearchFriend, page = 1, limit = 
     }
 }
 
+
 export const friendRequestService = async (data: FriendRequest) => {
-    const senderId = Math.min(Number(data.senderId),Number(data.to))
-    const to = Math.max(Number(data.senderId),Number(data.to))
+    const senderId = Math.min(Number(data.senderId), Number(data.to))
+    const to = Math.max(Number(data.senderId), Number(data.to))
 
     if (isNaN(senderId) || isNaN(to)) {
         throw new ApiError(400, `Invalid IDs — senderId: ${data.senderId}, to: ${data.to}`)
@@ -112,5 +113,50 @@ export const friendRequestService = async (data: FriendRequest) => {
         to: friendRequest.friend_id,
         status: friendRequest.status,
         createdAt: friendRequest.created_at
+    }
+}
+
+
+export const getAllFriendRequestService = async (page: number, limit: number, data: number) => {
+    const offset = (page-1)*limit
+    const reqData = await db
+        .select({
+            id: friendship.id,
+            sender :{
+                id : users.id,
+                name : users.name
+            },
+            created_at: friendship.created_at,
+            count: sql<number>`count(*) over()`
+        })
+        .from(friendship)
+        .leftJoin(users, eq(users.id, friendship.sender_id))
+        .where(and(
+            or(
+                eq(friendship.user_id, data),
+                eq(friendship.friend_id, data),
+            ),
+            eq(friendship.status,"pending"),
+            ne(friendship.sender_id, data)
+        ))
+        .orderBy(desc(friendship.created_at))
+        .limit(limit)
+        .offset(offset)
+
+    if(reqData.length === 0){
+        throw new ApiError(404,"No request found")
+    }
+
+    const total = reqData[0]!.count
+    return {
+        data:reqData.map(({count,...res})=> res),
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total/limit),
+            hasNext: page < Math.ceil(total/limit),
+            hasPrev: page > 1
+        }
     }
 }
