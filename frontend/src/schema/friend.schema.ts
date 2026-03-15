@@ -8,7 +8,7 @@ export type SearchFriend = z.infer<typeof searchFriendSchema>
 
 
 
-type Friend = {
+export type Friend = {
   id: number
   name: string
 }
@@ -23,4 +23,4 @@ export type FriendData = {
     hasNext: boolean
     hasPrev: boolean
   }
-}[]
+}

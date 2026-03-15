@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { useEffect, useState, useRef } from "react";
 import { useSearchFriends } from "@/lib/api/hooks/friends";
 import { useSocket } from "@/providers/Socket.provider";
+import { useFriendRequestSocket } from "@/lib/socket/hooks/useFriendRequestSocket";
 
 export const SearchFriends = () => {
     const [name, setName] = useState("")
@@ -27,7 +28,9 @@ export const SearchFriends = () => {
         isLoading,
     } = useSearchFriends(debouncedName)
 
-    const friends = data?.pages.flatMap(page => page[0].data) ?? []
+    useFriendRequestSocket(debouncedName)
+
+    const friends = data?.pages.flatMap(page => page.data) ?? []
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -65,7 +68,7 @@ export const SearchFriends = () => {
                                     <Button
                                         title="Send Friend Request"
                                         className="bg-gray-500 hover:bg-gray-700 dark:hover:bg-gray-100"
-                                        onClick={() => socket.emit("add_friend", { to: v.id })}
+                                        onClick={() => socket.emit("friend:add", { to: v.id })}
                                     >
                                         <PlusIcon />
                                     </Button>

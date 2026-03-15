@@ -27,7 +27,7 @@ export function friendRequestHandler(socket: Socket) {
             const saveFriendRequest = response.data
             console.log("log from ws backend :: ", saveFriendRequest)
 
-            sendEvents(senderId,"friend:request_sent",{
+            sendEvents(String(senderId),"friend:request_sent",{
                 to: String(data.to)
             })
 
