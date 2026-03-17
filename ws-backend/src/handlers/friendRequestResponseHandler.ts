@@ -26,14 +26,14 @@ export const friendRequestResponseHandler = (socket: Socket) => {
                     })
 
 
-            // console.log("Response :: ", response.data)
+            console.log("Response :: ", response.data)
             sendEvents(
                 String(socket.data.id),
                 "friend:response_handled",
                 { id: data.id, sender: data.sender }
             )
 
-            if (data[0].status === "accepted") {
+            if (data.status === "accepted") {
                 sendEvents(
                     String(data.sender.id),
                     "friend:request_accepted",
