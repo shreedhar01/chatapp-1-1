@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { useSearchFriends } from "@/lib/api/hooks/friends";
 import { useSocket } from "@/providers/Socket.provider";
 import { useFriendRequestSocket } from "@/lib/socket/hooks/useFriendRequestSocket";
-import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from "./ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export const SearchFriends = () => {
     const [name, setName] = useState("")
