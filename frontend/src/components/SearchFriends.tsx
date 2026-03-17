@@ -9,6 +9,7 @@ import { useFriendRequestSocket } from "@/lib/socket/hooks/useFriendRequestSocke
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export const SearchFriends = () => {
+    const [openId, setOpenId] = useState<number | null>(null)
     const [name, setName] = useState("")
     const [debouncedName, setDebouncedName] = useState("")
     const sentinelRef = useRef<HTMLDivElement>(null)
@@ -178,7 +179,10 @@ export const SearchFriends = () => {
                     </div>
                     <div className="flex flex-col gap-2  h-40/100">
                         <p className="text-gray-500 ">Friend Request</p>
-                        <ScrollArea className="flex-1 min-h-0 rounded-2xl">
+                        <ScrollArea 
+                        className="flex-1 min-h-0 rounded-2xl"
+                        onScrollCapture={() => setOpenId(null)}
+                        >
                             <div className="flex flex-col gap-1 p-1 rounded-2xl bg-gray-500">
                                 {
                                     reqData.map(v =>
@@ -187,7 +191,10 @@ export const SearchFriends = () => {
                                             className="group flex items-center justify-between  bg-gray-100 dark:bg-gray-900 p-2 rounded-xl"
                                         >
                                             <p>{v.sender.name}</p>
-                                            <Popover>
+                                            <Popover
+                                            open={openId === v.id}
+                                            onOpenChange={(o) => setOpenId(o ? v.id : null)}
+                                            >
                                                 <PopoverTrigger asChild>
                                                     <Button
                                                         className="flex items-center justify-center
@@ -198,7 +205,10 @@ export const SearchFriends = () => {
                                                         variant="outline"
                                                     >...</Button>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="flex flex-col gap-1 w-150/100 bg-gray-500 p-1">
+                                                <PopoverContent
+                                                    align="end"
+                                                    className="flex flex-col gap-1 w-40 bg-gray-500 p-1"
+                                                >
                                                     <Button
                                                         className="flex justify-start text-green-500 bg-gray-100 dark:bg-gray-900 hover:bg-green-200 dark:hover:bg-green-800"
                                                     >
