@@ -13,7 +13,7 @@ export type Friend = {
   name: string
 }
 
-type Message = {
+export type Message = {
   id: number;
   sender: Friend;
   created_at: string; // ISO date string

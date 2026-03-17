@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { useEffect, useState, useRef } from "react";
 import { useFriendsRequst, useSearchFriends } from "@/lib/api/hooks/friends";
 import { useSocket } from "@/providers/Socket.provider";
-import { useFriendRequestSocket } from "@/lib/socket/hooks/useFriendRequestSocket";
+import { useFriendRequestResponseSocket, useFriendRequestSocket } from "@/lib/socket/hooks/useFriendRequestSocket";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export const SearchFriends = () => {
@@ -13,6 +13,7 @@ export const SearchFriends = () => {
     const [name, setName] = useState("")
     const [debouncedName, setDebouncedName] = useState("")
     const sentinelRef = useRef<HTMLDivElement>(null)
+    const reqSentinelRef = useRef<HTMLDivElement>(null)
     const socket = useSocket()
     // console.log("ref :: ", sentinelRef)
 
@@ -40,6 +41,7 @@ export const SearchFriends = () => {
     } = useFriendsRequst();
 
     useFriendRequestSocket(debouncedName)
+    useFriendRequestResponseSocket()
 
     const friends = data?.pages.flatMap(page => page.data) ?? []
     const reqData = requestData?.pages.flatMap(page => page.data) ?? []
@@ -56,7 +58,21 @@ export const SearchFriends = () => {
         )
         if (sentinelRef.current) observer.observe(sentinelRef.current)
         return () => observer.disconnect()
-    }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+    },[hasNextPage, isFetchingNextPage, fetchNextPage] )
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                // console.log("entries :: ", entries)
+                if (entries[0].isIntersecting && reqHasNextPage && !reqIsFetchingNextPage) {
+                    reqFetchNextPage()
+                }
+            },
+            { threshold: 0.1 }
+        )
+        if (reqSentinelRef.current) observer.observe(reqSentinelRef.current)
+        return () => observer.disconnect()
+    },[reqHasNextPage, reqIsFetchingNextPage, reqFetchNextPage])
 
     return (
         <div className="flex w-full h-full overflow-hidden">
@@ -100,6 +116,9 @@ export const SearchFriends = () => {
                                 )}
                                 {friends.length === 0 && (
                                     <p className="text-center text-sm text-gray-400 py-2">No Result</p>
+                                )}
+                                {isLoading && (
+                                    <p className="text-center text-sm text-gray-400">Searching...</p>
                                 )}
                             </div>
                         </ScrollArea>
@@ -167,13 +186,23 @@ export const SearchFriends = () => {
                                         </div>
                                     )
                                 }
+
+                                <div ref={reqSentinelRef} className="h-1" />
+                                {reqIsFetchingNextPage && (
+                                    <p className="text-center text-sm text-gray-400 py-2">Loading more...</p>
+                                )}
+                                {reqData.length > 0 && !reqHasNextPage && (
+                                    <p className="text-center text-sm text-gray-400 py-2">No more results</p>
+                                )}
+                                {reqData.length === 0 && (
+                                    <p className="text-center text-sm text-gray-400 py-2">No Result</p>
+                                )}
+                                {reqIsLoading && (
+                                    <p className="text-center text-sm text-gray-400">Searching...</p>
+                                )}
                             </div>
                         </ScrollArea>
                     </div>
-
-                    {isLoading && (
-                        <p className="text-center text-sm text-gray-400">Searching...</p>
-                    )}
                 </div>
             </div>
             <div className="hidden md:flex flex-col w-69/100 items-center justify-center gap-4">
