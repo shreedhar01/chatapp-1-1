@@ -54,12 +54,16 @@ export const responseFriendRequestController = asyncHandler(async (req: Request,
     const isValid = responseFriendRequestSchema.safeParse(data)
     if (!isValid.success) {
         const error = isValid.error.issues
-        throw new ApiError(400, "Invalid req body",[error.map(v => ({ path: v.path[0], message: v.message }))])
+        throw new ApiError(400, "Invalid req body", [error.map(v => ({ path: v.path[0], message: v.message }))])
     }
 
-    const responseResult = await responseFriendRequestService(isValid.data)
+    const { id } = await responseFriendRequestService(isValid.data)
 
     return res.status(200).json(
-        new ApiResponse(200,[responseResult],"Friend request response handled successfully handled")
+        new ApiResponse(
+            200,
+            [{ id: id, accepter: { id: req.user?.id, name: req.user?.name } }],
+            "Friend request response handled successfully handled"
+        )
     )
 })
