@@ -1,7 +1,7 @@
 import { and, desc, eq, ilike, inArray, ne, notExists, or, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { friendship, users } from "../db/schema.js";
-import type { FriendRequest, SearchFriend } from "../types/friends.types.js";
+import type { FriendRequest, ResponseFriendRequest, SearchFriend } from "../types/friends.types.js";
 import { ApiError } from "../utils/ApiError.js";
 
 export const searchFriendService = async (data: SearchFriend, page = 1, limit = 20, currentUserId: number) => {
@@ -118,13 +118,13 @@ export const friendRequestService = async (data: FriendRequest) => {
 
 
 export const getAllFriendRequestService = async (page: number, limit: number, data: number) => {
-    const offset = (page-1)*limit
+    const offset = (page - 1) * limit
     const reqData = await db
         .select({
             id: friendship.id,
-            sender :{
-                id : users.id,
-                name : users.name
+            sender: {
+                id: users.id,
+                name: users.name
             },
             created_at: friendship.created_at,
             count: sql<number>`count(*) over()`
@@ -136,27 +136,42 @@ export const getAllFriendRequestService = async (page: number, limit: number, da
                 eq(friendship.user_id, data),
                 eq(friendship.friend_id, data),
             ),
-            eq(friendship.status,"pending"),
+            eq(friendship.status, "pending"),
             ne(friendship.sender_id, data)
         ))
         .orderBy(desc(friendship.created_at))
         .limit(limit)
         .offset(offset)
 
-    if(reqData.length === 0){
-        throw new ApiError(404,"No request found")
+    if (reqData.length === 0) {
+        throw new ApiError(404, "No request found")
     }
 
     const total = reqData[0]!.count
     return {
-        data:reqData.map(({count,...res})=> res),
+        data: reqData.map(({ count, ...res }) => res),
         pagination: {
             total,
             page,
             limit,
-            totalPages: Math.ceil(total/limit),
-            hasNext: page < Math.ceil(total/limit),
+            totalPages: Math.ceil(total / limit),
+            hasNext: page < Math.ceil(total / limit),
             hasPrev: page > 1
         }
     }
+}
+
+
+export const responseFriendRequestService = async (data: ResponseFriendRequest) => {
+    const [requestResponse] = await db
+        .update(friendship)
+        .set({ status: data.status })
+        .where(eq(friendship.id, data.id))
+        .returning({ id: friendship.id })
+
+    if (!requestResponse) {
+        throw new ApiError(404, "Request not exist")
+    }
+
+    return requestResponse
 }

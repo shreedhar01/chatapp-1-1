@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { friendRequestSchema, searchFriendSchema } from "../../types/friends.types.js";
+import { friendRequestSchema, responseFriendRequestSchema, searchFriendSchema } from "../../types/friends.types.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
-import { friendRequestService, getAllFriendRequestService, searchFriendService } from "../../services/friend.service.js";
+import { friendRequestService, getAllFriendRequestService, responseFriendRequestService, searchFriendService } from "../../services/friend.service.js";
 
 export const searchFriendController = asyncHandler(async (req: Request, res: Response) => {
     const data = req.body
@@ -41,14 +41,25 @@ export const getAllFriendRequestController = asyncHandler(async (req: Request, r
     const { page, limit } = req.query
     const pageNumber = Math.max(1, Number(page) || 1)
     const limitNumber = Math.min(50, Math.max(1, Number(limit) || 10))
-    const requestData  = await getAllFriendRequestService(pageNumber,limitNumber,req.user!.id)
+    const requestData = await getAllFriendRequestService(pageNumber, limitNumber, req.user!.id)
 
     return res.status(200).json(
-        new ApiResponse(200,[requestData],"Pending Request Fetch Successfully")
+        new ApiResponse(200, [requestData], "Pending Request Fetch Successfully")
     )
 })
 
 
-export const responseFriendRequest = asyncHandler(async (req: Request, res: Response) => {
+export const responseFriendRequestController = asyncHandler(async (req: Request, res: Response) => {
+    const data = req.body
+    const isValid = responseFriendRequestSchema.safeParse(data)
+    if (!isValid.success) {
+        const error = isValid.error.issues
+        throw new ApiError(400, "Invalid req body",[error.map(v => ({ path: v.path[0], message: v.message }))])
+    }
 
+    const responseResult = await responseFriendRequestService(isValid.data)
+
+    return res.status(200).json(
+        new ApiResponse(200,[responseResult],"Friend request response handled successfully handled")
+    )
 })
