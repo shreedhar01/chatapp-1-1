@@ -182,13 +182,21 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
     const friends = await db
         .select({
             id: friendship.id,
-            friend_id: sql<number>`case 
-            when ${friendship.user_id} = ${userId} then ${friendship.friend_id} 
-            else ${friendship.user_id}
-            end`,
+            friend: {
+                id: users.id,
+                name: users.name,
+                email: users.email,
+                status: users.status,
+                lastSeen: users.last_seen,
+            },
             count: sql<number>`count(*) over()`
         })
         .from(friendship)
+        .leftJoin(users, sql<number>`
+            ${users.id} = case 
+            when ${friendship.user_id} = ${userId} then ${friendship.friend_id}
+            else ${friendship.user_id}
+            end`)
         .where(and(
             or(
                 eq(friendship.user_id, userId),
