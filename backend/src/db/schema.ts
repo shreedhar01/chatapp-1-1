@@ -27,8 +27,8 @@ export const users = pgTable("users", {
   name: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar({ length: 255 }).notNull(),
-  status: userStatusDrizzler().default("active"),
-  last_seen: timestamp(),
+  status: userStatusDrizzler().default("offline"),
+  last_seen: timestamp().defaultNow(),
   created_at: timestamp().defaultNow(),
 });
 

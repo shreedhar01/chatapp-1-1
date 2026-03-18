@@ -1,0 +1,54 @@
+-- CREATE TYPE "public"."friendshipStatus" AS ENUM('block', 'pending', 'accepted');--> statement-breakpoint
+-- CREATE TYPE "public"."messageStatus" AS ENUM('sent', 'delivered', 'read');--> statement-breakpoint
+-- CREATE TYPE "public"."messageType" AS ENUM('text', 'file', 'video', 'audio', 'image');--> statement-breakpoint
+-- CREATE TYPE "public"."usersStatus" AS ENUM('active', 'offline');--> statement-breakpoint
+-- CREATE TABLE "conversation" (
+-- 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "conversation_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+-- 	"user1_id" integer NOT NULL,
+-- 	"user2_id" integer NOT NULL,
+-- 	"created_at" timestamp DEFAULT now(),
+-- 	CONSTRAINT "ordered_users" CHECK ("conversation"."user1_id" < "conversation"."user2_id")
+-- );
+-- --> statement-breakpoint
+-- CREATE TABLE "friendship" (
+-- 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "friendship_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+-- 	"user_id" integer NOT NULL,
+-- 	"friend_id" integer NOT NULL,
+-- 	"sender_id" integer NOT NULL,
+-- 	"status" "friendshipStatus" DEFAULT 'pending',
+-- 	"created_at" timestamp DEFAULT now(),
+-- 	CONSTRAINT "ordered_friendship" CHECK ("friendship"."user_id" < "friendship"."friend_id")
+-- );
+-- --> statement-breakpoint
+-- CREATE TABLE "message" (
+-- 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "message_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+-- 	"conversation_id" integer NOT NULL,
+-- 	"sender_id" integer NOT NULL,
+-- 	"content" text NOT NULL,
+-- 	"type" "messageType" DEFAULT 'text',
+-- 	"status" "messageStatus" DEFAULT 'sent',
+-- 	"created_at" timestamp DEFAULT now(),
+-- 	"updated_at" timestamp,
+-- 	"deleted_at" timestamp
+-- );
+--> statement-breakpoint
+-- ALTER TABLE "users" ADD COLUMN "password" varchar(255);;--> statement-breakpoint
+-- ALTER TABLE "users" ADD COLUMN "status" "usersStatus" DEFAULT 'offline';--> statement-breakpoint
+-- ALTER TABLE "users" ADD COLUMN "last_seen" timestamp DEFAULT now();--> statement-breakpoint
+-- ALTER TABLE "users" ADD COLUMN "created_at" timestamp DEFAULT now();--> statement-breakpoint
+-- ALTER TABLE "conversation" ADD CONSTRAINT "conversation_user1_id_users_id_fk" FOREIGN KEY ("user1_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+-- ALTER TABLE "conversation" ADD CONSTRAINT "conversation_user2_id_users_id_fk" FOREIGN KEY ("user2_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+-- ALTER TABLE "friendship" ADD CONSTRAINT "friendship_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+-- ALTER TABLE "friendship" ADD CONSTRAINT "friendship_friend_id_users_id_fk" FOREIGN KEY ("friend_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+-- ALTER TABLE "friendship" ADD CONSTRAINT "friendship_sender_id_users_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+-- ALTER TABLE "message" ADD CONSTRAINT "message_conversation_id_conversation_id_fk" FOREIGN KEY ("conversation_id") REFERENCES "public"."conversation"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+-- ALTER TABLE "message" ADD CONSTRAINT "message_sender_id_users_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+-- CREATE UNIQUE INDEX "unique_conversation_idx" ON "conversation" USING btree ("user1_id","user2_id");--> statement-breakpoint
+-- CREATE UNIQUE INDEX "unique_friendship_idx" ON "friendship" USING btree ("user_id","friend_id");--> statement-breakpoint
+-- CREATE INDEX "conversation_idx" ON "message" USING btree ("conversation_id","created_at" desc);--> statement-breakpoint
+-- CREATE INDEX "sender_idx" ON "message" USING btree ("sender_id");--> statement-breakpoint
+-- ALTER TABLE "users" DROP COLUMN "age";
+
+-- manual data migration
+UPDATE "users" SET status = 'offline' WHERE status = 'active';
+UPDATE "users" SET last_seen = created_at WHERE last_seen IS NULL;
