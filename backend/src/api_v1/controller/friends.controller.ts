@@ -3,7 +3,7 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { friendRequestSchema, responseFriendRequestSchema, searchFriendSchema } from "../../types/friends.types.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
-import { friendRequestService, getAllFriendRequestService, responseFriendRequestService, searchFriendService } from "../../services/friend.service.js";
+import { friendRequestService, getAllFriendRequestService, getAllFriendService, responseFriendRequestService, searchFriendService } from "../../services/friend.service.js";
 
 export const searchFriendController = asyncHandler(async (req: Request, res: Response) => {
     const data = req.body
@@ -65,5 +65,17 @@ export const responseFriendRequestController = asyncHandler(async (req: Request,
             [{ id: id, accepter: { id: req.user?.id, name: req.user?.name } }],
             "Friend request response handled successfully handled"
         )
+    )
+})
+
+export const getAllFriendController = asyncHandler(async (req: Request, res: Response) => {
+    const { limit, page } = req.query
+    const limitNumber = Math.min(Number(limit) || 20, 50)
+    const pageNumber = Math.max(Number(page) || 1, 1)
+
+    const allFriend = await getAllFriendService(limitNumber, pageNumber, req.user!.id)
+
+    return res.status(200).json(
+        new ApiResponse(200,[allFriend],"Friends fetch Successfully")
     )
 })

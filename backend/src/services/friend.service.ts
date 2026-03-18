@@ -175,3 +175,45 @@ export const responseFriendRequestService = async (data: ResponseFriendRequest) 
 
     return requestResponse
 }
+
+
+export const getAllFriendService = async (limit: number, page: number, userId: number) => {
+    const offset = (page - 1) * limit
+    const friends = await db
+        .select({
+            id: friendship.id,
+            friend_id: sql<number>`case 
+            when ${friendship.user_id} = ${userId} then ${friendship.friend_id} 
+            else ${friendship.user_id}
+            end`,
+            count: sql<number>`count(*) over()`
+        })
+        .from(friendship)
+        .where(and(
+            or(
+                eq(friendship.user_id, userId),
+                eq(friendship.friend_id, userId)
+            ),
+            eq(friendship.status, "accepted")
+        ))
+        .orderBy(desc(friendship.created_at))
+        .limit(limit)
+        .offset(offset)
+
+    if (friends.length === 0) {
+        throw new ApiError(404, "Friends not found")
+    }
+
+    const total = Number(friends[0]!.count)
+
+    return {
+        data: friends.map(({ count, ...data }) => data),
+        pagination: {
+            total,
+            page,
+            totalPage: Math.ceil(total / limit),
+            hasNextPage: Math.ceil(total / limit) > page,
+            hasPrevPage: page < 1
+        }
+    }
+}
