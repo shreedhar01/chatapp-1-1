@@ -13,11 +13,7 @@ export const ChatSection = () => {
         isLoading: allFriendIsLoading,
     } = useGetAllFriends();
 
-    const fData = allFriendData?.pages.flatMap(v => v.data) || []
-    const friendData = [
-        ...fData.filter(v => v.friend.status === "active"),
-        ...fData.filter(v => v.friend.status === "offline")
-    ]
+    const friendData = allFriendData?.pages.flatMap(v => v.data) || []
 
     useEffect(() => {
         const observer = new IntersectionObserver(
