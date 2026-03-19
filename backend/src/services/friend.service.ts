@@ -220,8 +220,8 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
             total,
             page,
             totalPage: Math.ceil(total / limit),
-            hasNextPage: Math.ceil(total / limit) > page,
-            hasPrevPage: page < 1
+            hasNext: Math.ceil(total / limit) > page,
+            hasPrev: page < 1
         }
     }
 }
