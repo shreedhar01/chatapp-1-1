@@ -50,3 +50,30 @@ export const friendRequestResponseHandler = (socket: Socket) => {
         }
     })
 }
+
+export const allActiveFriendsHandler = (socket: Socket) => {
+    socket.on("user:login", async () => {
+        try {
+            const allFriends = await axios.get(`${config.REST_API_BACKEND}/friend/active/`, {
+                headers: {
+                    Authorization: `Bearer ${socket.data.token}`
+                }
+            })
+
+            // console.log("Response :: ", allFriends.data.data)
+            allFriends.data.data.forEach((v:number) => {
+                sendEvents(
+                    String(v),
+                    "user:online",
+                    socket.data.id
+                )
+            })
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.log("Error while getting active friends :: ", error.response?.data)
+            } else {
+                console.log("Error while getting active friends :: ", error)
+            }
+        }
+    })
+}
