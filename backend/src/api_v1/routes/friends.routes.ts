@@ -5,6 +5,7 @@ import {
 import { authorizeUser } from "../middlewares/auth.middleware.js";
 import {
     friendRequestController,
+    gellActiveFriendsController,
     getAllFriendController,
     getAllFriendRequestController,
     responseFriendRequestController,
@@ -16,6 +17,7 @@ const router: ExpressRouter = Router()
 router.route("/search").post(authorizeUser, searchFriendController)
 router.route("/add").post(authorizeUser, friendRequestController)
 router.route("/accepted").get(authorizeUser, getAllFriendController)
+router.route("/active").get(authorizeUser, gellActiveFriendsController)
 router.route("/")
     .get(authorizeUser, getAllFriendRequestController)
     .post(authorizeUser, responseFriendRequestController)

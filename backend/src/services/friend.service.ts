@@ -3,6 +3,7 @@ import { db } from "../db/index.js";
 import { friendship, users } from "../db/schema.js";
 import type { FriendRequest, ResponseFriendRequest, SearchFriend } from "../types/friends.types.js";
 import { ApiError } from "../utils/ApiError.js";
+import { alias } from "drizzle-orm/pg-core";
 
 export const searchFriendService = async (data: SearchFriend, page = 1, limit = 20, currentUserId: number) => {
     const offset = (page - 1) * limit
@@ -204,7 +205,7 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
             ),
             eq(friendship.status, "accepted")
         ))
-        .orderBy(users.status,desc(friendship.created_at))
+        .orderBy(users.status, desc(friendship.created_at))
         .limit(limit)
         .offset(offset)
 
@@ -224,4 +225,30 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
             hasPrev: page < 1
         }
     }
+}
+
+export const getAllActiveFriendsService = async (userId: number) => {
+    const u2 = alias(users, "u2")
+    const allFriends = await db
+        .select({id:u2.id})
+        .from(users)
+        .innerJoin(friendship, or(
+            eq(friendship.user_id, users.id),
+            eq(friendship.friend_id, users.id)
+        ))
+        .innerJoin(u2, sql<number>`
+            ${u2.id} = case 
+            when ${friendship.user_id} = ${userId} then ${friendship.friend_id}
+            else ${friendship.user_id}
+            end`)
+        .where(and(
+            eq(users.id, userId),
+            eq(u2.status, "active")
+        ))
+
+    if(allFriends.length === 0){
+        throw new ApiError(404,"No active friends found")
+    }
+
+    return [...allFriends.map(v => v.id)]
 }

@@ -3,7 +3,7 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { friendRequestSchema, responseFriendRequestSchema, searchFriendSchema } from "../../types/friends.types.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
-import { friendRequestService, getAllFriendRequestService, getAllFriendService, responseFriendRequestService, searchFriendService } from "../../services/friend.service.js";
+import { friendRequestService, getAllActiveFriendsService, getAllFriendRequestService, getAllFriendService, responseFriendRequestService, searchFriendService } from "../../services/friend.service.js";
 
 export const searchFriendController = asyncHandler(async (req: Request, res: Response) => {
     const data = req.body
@@ -77,5 +77,12 @@ export const getAllFriendController = asyncHandler(async (req: Request, res: Res
 
     return res.status(200).json(
         new ApiResponse(200,[allFriend],"Friends fetch Successfully")
+    )
+})
+
+export const gellActiveFriendsController = asyncHandler( async (req: Request, res: Response)=>{
+    const allFriends = await getAllActiveFriendsService(req.user!.id)
+    return res.status(200).json(
+        new ApiResponse(200,allFriends,"All active friends fetch successfully")
     )
 })
