@@ -58,7 +58,7 @@ export const SearchFriends = () => {
         )
         if (sentinelRef.current) observer.observe(sentinelRef.current)
         return () => observer.disconnect()
-    },[hasNextPage, isFetchingNextPage, fetchNextPage] )
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -72,7 +72,7 @@ export const SearchFriends = () => {
         )
         if (reqSentinelRef.current) observer.observe(reqSentinelRef.current)
         return () => observer.disconnect()
-    },[reqHasNextPage, reqIsFetchingNextPage, reqFetchNextPage])
+    }, [reqHasNextPage, reqIsFetchingNextPage, reqFetchNextPage])
 
     return (
         <div className="flex w-full h-full overflow-hidden">
@@ -87,7 +87,7 @@ export const SearchFriends = () => {
                             onChange={(e) => setName(e.target.value)}
                         />
 
-                        <ScrollArea className="flex-1 min-h-0 rounded-2xl">
+                        <ScrollArea className="flex-1 min-h-0 rounded-2xl overflow-hidden">
                             <div className="flex flex-col gap-1 p-1 rounded-2xl bg-gray-500">
                                 {friends.map((v) => (
                                     <div
@@ -126,7 +126,7 @@ export const SearchFriends = () => {
                     <div className="flex flex-col gap-2  h-40/100">
                         <p className="text-gray-500 ">Friend Request</p>
                         <ScrollArea
-                            className="flex-1 min-h-0 rounded-2xl"
+                            className="flex-1 min-h-0 rounded-2xl overflow-hidden"
                             onScrollCapture={() => setOpenId(null)}
                         >
                             <div className="flex flex-col gap-1 p-1 rounded-2xl bg-gray-500">
