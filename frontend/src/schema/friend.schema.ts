@@ -37,3 +37,22 @@ export type FriendRequestData = {
   data: Message[],
   pagination: Pagination
 }
+
+
+export type AcceptedFriend = {
+  id: number;
+  name: string;
+  email: string;
+  status: "active" | "offline"; 
+  lastSeen: Date; 
+}
+
+export type FriendItem = {
+  id: number;
+  friend: AcceptedFriend;
+}
+
+export interface DataWrapper {
+  data: FriendItem[];
+  pagination: Pagination;
+}
