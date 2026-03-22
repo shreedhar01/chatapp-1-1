@@ -1,8 +1,12 @@
 import { useGetAllFriends } from "@/lib/api/hooks/friends";
 import { ScrollArea } from "./ui/scroll-area"
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Messages } from "./Messages";
+import { ArrowLeftIcon, MessagesSquareIcon } from "lucide-react";
+import type { FriendItem } from "@/schema/friend.schema";
 
 export const ChatSection = () => {
+    const [friendId, setFriendId] = useState<FriendItem | null>(null)
     const friendSentialRef = useRef<HTMLDivElement>(null)
 
     const {
@@ -29,16 +33,17 @@ export const ChatSection = () => {
     }, [allFriendIsFetchingNextPage, allFriendFetchNextPage, allFriendHasNextPage])
 
     return (
-        <div className="flex w-full h-full">
-            <div className="flex flex-col w-31/100 border-r border-gray-500 rounded-2xl">
+        <div className="flex w-full h-full md:gap-2 bg-gray-200 dark:bg-gray-800">
+            <div className={` ${friendId ? "hidden md:flex" : ""} flex flex-col w-full md:w-31/100 border-r border-gray-500 rounded-r-2xl bg-white dark:bg-black overflow-hidden`}>
                 <p className=" text-xl font-bold p-3">Let's Chat</p>
-                <ScrollArea className="flex-1 min-h-0 border rounded-2xl mb-2 mr-2 overflow-hidden">
-                    <div className="flex flex-col gap-2 p-2 bg-gray-500">
+                <ScrollArea className="flex-1 min-h-0 border rounded-2xl mb-2 mx-2 md:mr-2 overflow-hidden">
+                    <div className="flex flex-col gap-2 p-2 bg-gray-500 overflow-hidden">
                         {
                             friendData.map(v =>
                                 <div
                                     key={v.id}
-                                    className="flex items-center justify-between bg-gray-100 dark:bg-gray-900 p-4 rounded-xl"
+                                    onClick={() => setFriendId(v)}
+                                    className={` ${friendId?.id === v.id ? "dark:bg-black bg-white" : "bg-gray-300 dark:bg-gray-800"} flex items-center justify-between  p-4 rounded-xl dark:hover:bg-black hover:bg-white`}
                                 >
                                     <p>{v.friend.name}</p>
                                     <div className="flex flex-col gap-2 items-end">
@@ -82,8 +87,32 @@ export const ChatSection = () => {
                     </div>
                 </ScrollArea>
             </div>
-            <div className=" w-69/100">
+            <div className={` ${friendId ? "block w-full ml-2 md:ml-0" : "hidden"}  md:block md:w-69/100 border border-gray-500 rounded-2xl mr-2 bg-white dark:bg-black`}>
+                <div className="flex-1 h-full min-h-0">
+                    {
+                        friendId ?
+                            <div className="flex flex-col flex-1 h-full min-h-0">
+                                <div className={`${friendId ? "flex" : "hidden"} items-center justify-between border-b dark:border-white rounded-t-2xl py-2 px-4`}>
+                                    <button
+                                    title="Back"
+                                        onClick={() => setFriendId(null)}
 
+                                    >
+                                        <ArrowLeftIcon />
+                                    </button>
+                                    <p>{friendId.friend.name}</p>
+                                </div>
+                                <Messages id={friendId.id} />
+                            </div>
+                            :
+                            <div className="flex flex-col items-center justify-center h-full">
+                                <MessagesSquareIcon className="size-20 text-gray-500" />
+                                <p className="text-4xl font-bold text-gray-500">Messages</p>
+                                <p className="text-gray-400 dark:text-gray-600">Click user's to see your message</p>
+                            </div>
+                    }
+
+                </div>
             </div>
         </div>
     )
