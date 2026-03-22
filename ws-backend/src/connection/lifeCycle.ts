@@ -29,7 +29,7 @@ export async function handleConnection(socket: Socket, io: Server) {
         allActiveFriendsHandler(socket)
 
         socket.on("disconnect", () => {
-            removeConnection(userId,socket.id)
+            removeConnection(userId,socket)
         })
     } catch (error) {
         console.log("Error at connection handling :: ", error)
