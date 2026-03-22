@@ -1,9 +1,11 @@
 import { getConnection } from "../connection/connectionManagement.js";
 
 export function sendEvents(userId: string, event: string, playload: any) {
-    const socket = getConnection(userId)
+    const sockets = getConnection(userId)
     // console.log("Socket event :: ",event)
-    if (socket) {
+    if (!sockets) return
+
+    sockets.forEach((socket) => {
         socket.emit(event, playload)
-    }
+    })
 }
