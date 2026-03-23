@@ -205,7 +205,7 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
             ),
             eq(friendship.status, "accepted")
         ))
-        .orderBy(users.status, desc(friendship.created_at))
+        .orderBy(users.status, friendship.created_at)
         .limit(limit)
         .offset(offset)
 
