@@ -107,7 +107,7 @@ export const ChatSection = () => {
                                     </button>
                                     <p>{friendId.friend.name}</p>
                                 </div>
-                                <Messages id={friendId.id} />
+                                <Messages friendItem={friendId} />
                             </div>
                             :
                             <div className="flex flex-col items-center justify-center h-full">
