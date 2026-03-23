@@ -5,6 +5,7 @@ import { Messages } from "./Messages";
 import { ArrowLeftIcon, MessagesSquareIcon } from "lucide-react";
 import type { FriendItem } from "@/schema/friend.schema";
 import { useFriendOffline, useFriendOnline } from "@/lib/socket/hooks/useFriendSocket";
+import { dateConverter } from "@/utils/dateConverter";
 
 export const ChatSection = () => {
     const [friendId, setFriendId] = useState<FriendItem | null>(null)
@@ -66,7 +67,7 @@ export const ChatSection = () => {
                                         {
                                             v.friend.status === "offline" ?
                                                 <p className="text-gray-500 text-xs">
-                                                    {v.friend.lastSeen ? new Date(`${v.friend.lastSeen}`).toLocaleString() : "none"}
+                                                    {v.friend.lastSeen ? dateConverter(String(v.friend.lastSeen)) : "none"}
                                                 </p> : null
 
                                         }
