@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Messages } from "./Messages";
 import { ArrowLeftIcon, MessagesSquareIcon } from "lucide-react";
 import type { FriendItem } from "@/schema/friend.schema";
+import { useFriendOffline, useFriendOnline } from "@/lib/socket/hooks/useFriendSocket";
 
 export const ChatSection = () => {
     const [friendId, setFriendId] = useState<FriendItem | null>(null)
@@ -32,12 +33,15 @@ export const ChatSection = () => {
         return () => observer.disconnect()
     }, [allFriendIsFetchingNextPage, allFriendFetchNextPage, allFriendHasNextPage])
 
+    useFriendOnline()
+    useFriendOffline()
+
     return (
         <div className="flex w-full h-full md:gap-2 bg-gray-200 dark:bg-gray-800">
             <div className={` ${friendId ? "hidden md:flex" : ""} flex flex-col w-full md:w-31/100 border-r border-gray-500 rounded-r-2xl bg-white dark:bg-black overflow-hidden`}>
                 <p className=" text-xl font-bold p-3">Let's Chat</p>
-                <ScrollArea className="flex-1 min-h-0 border rounded-2xl mb-2 mx-2 md:mr-2 overflow-hidden">
-                    <div className="flex flex-col gap-2 p-2 bg-gray-500 overflow-hidden">
+                <ScrollArea className="flex-1 min-h-0 border rounded-2xl mb-2 mx-2 md:mr-2 overflow-hidden bg-gray-500">
+                    <div className="flex flex-col gap-2 p-2 overflow-hidden">
                         {
                             friendData.map(v =>
                                 <div
@@ -76,7 +80,7 @@ export const ChatSection = () => {
                             <p className="text-center text-sm text-gray-400 py-2">Loading more...</p>
                         )}
                         {friendData.length > 0 && !allFriendHasNextPage && (
-                            <p className="text-center text-sm text-gray-400 py-2">No more results</p>
+                            <p className="text-center text-sm text-gray-400 py-2">Add more friends</p>
                         )}
                         {friendData.length === 0 && (
                             <p className="text-center text-sm text-gray-400 py-2">No Result</p>

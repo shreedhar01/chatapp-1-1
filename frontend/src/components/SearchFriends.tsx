@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { useEffect, useState, useRef } from "react";
 import { useFriendsRequst, useSearchFriends } from "@/lib/api/hooks/friends";
 import { useSocket } from "@/providers/Socket.provider";
-import { useFriendRequestResponseSocket, useFriendRequestSocket } from "@/lib/socket/hooks/useFriendRequestSocket";
+import { useFriendRequestResponseSocket, useFriendRequestSocket } from "@/lib/socket/hooks/useFriendSocket";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export const SearchFriends = () => {
