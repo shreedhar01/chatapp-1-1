@@ -1,9 +1,13 @@
-import express, { type NextFunction, type Request, type Response } from "express"
-import userRouter from "./api_v1/routes/user.routes.js"
+import express, {
+    type NextFunction,
+    type Request, type Response
+} from "express"
 import type { ApiError } from "./utils/ApiError.js"
 import cookieParser from "cookie-parser"
 import cors from "cors"
+import userRouter from "./api_v1/routes/user.routes.js"
 import friendsRouter from "./api_v1/routes/friends.routes.js"
+import messageRouter from "./api_v1/routes/message.routes.js"
 
 
 const app = express()
@@ -27,6 +31,7 @@ app.get("/", (_, res) => {
 
 app.use("/user", userRouter)
 app.use("/friend", friendsRouter)
+app.use("/message", messageRouter)
 
 app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
     const statusCode = err.statusCode || 500
