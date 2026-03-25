@@ -8,7 +8,15 @@ import { useFriendOffline, useFriendOnline } from "@/lib/socket/hooks/useFriendS
 import { dateConverter } from "@/utils/dateConverter";
 
 export const ChatSection = () => {
-    const [friendId, setFriendId] = useState<FriendItem | null>(null)
+    const [friendId, setFriendId] = useState<FriendItem | null>(()=>{
+        const saved = sessionStorage.getItem("friend:message")
+        return saved ? JSON.parse(saved) as FriendItem : null
+    })
+
+    useEffect(()=>{
+        sessionStorage.setItem("friend:message", JSON.stringify(friendId))
+    },[friendId])
+
     const friendSentialRef = useRef<HTMLDivElement>(null)
 
     const {
