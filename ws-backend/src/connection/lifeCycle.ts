@@ -5,6 +5,7 @@ import { addConnection, removeConnection } from "./connectionManagement.js";
 import { friendRequestHandler } from "../handlers/friendRequestHandler.js";
 import { cookieParser } from "../utils/cookieParser.js";
 import { allActiveFriendsHandler, friendRequestResponseHandler } from "../handlers/friendRequestResponseHandler.js";
+import { createMessageHandler } from "../handlers/messageHandler.js";
 
 export async function handleConnection(socket: Socket, io: Server) {
     const cookieHeader = socket.handshake.headers.cookie || ""
@@ -27,6 +28,9 @@ export async function handleConnection(socket: Socket, io: Server) {
         friendRequestHandler(socket)
         friendRequestResponseHandler(socket)
         allActiveFriendsHandler(socket)
+
+        // message
+        createMessageHandler(socket)
 
         socket.on("disconnect", () => {
             removeConnection(userId,socket)

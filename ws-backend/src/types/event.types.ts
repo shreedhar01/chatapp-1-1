@@ -19,3 +19,10 @@ export const responseFriendRequestSchema = z.object({
     })
 })
 export type ResponseFriendRequest = z.infer<typeof responseFriendRequestSchema>
+
+
+export const createMessageSchema = z.object({
+  content: z.string().min(1).max(255),
+  receiverId: z.number()
+})
+export type CreateNewMessage = z.infer<typeof createMessageSchema>
