@@ -1,10 +1,12 @@
-export type Message = {
-    id: number;
-    senderId: number;
-    content: string;
-    type: "text" | "file" | "video" | "audio" | "image";
-    status: "sent" | "delivered" | "read";
-    createdAt: string;
+import z from "zod";
+
+export type Content = {
+  id: number;
+  senderId: number;
+  content: string;
+  type: "text" | "file" | "video" | "audio" | "image";
+  status: "sent" | "delivered" | "read";
+  createdAt: string;
 };
 
 type Pagination = {
@@ -17,6 +19,12 @@ type Pagination = {
 };
 
 export type MessageData = {
-  data: Message[];
+  data: Content[];
   pagination: Pagination;
 };
+
+export const messageSentSchema = z.object({
+  content: z.string().min(1).max(255),
+  receiverId: z.number()
+})
+export type MessageFormate = z.infer<typeof messageSentSchema>

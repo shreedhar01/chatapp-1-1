@@ -4,14 +4,16 @@ import { Button } from "./ui/button"
 import { CheckCheckIcon, CheckIcon, SendIcon } from "lucide-react"
 import { ScrollArea } from "./ui/scroll-area"
 import { dateConverter } from "@/utils/dateConverter"
-import { useGetMessage } from "@/lib/api/hooks/message"
-import type { Message } from "@/schema/message.schema"
-import { useEffect, useRef } from "react"
+import { useGetMessage, useSendMessage } from "@/lib/api/hooks/message"
+import { messageSentSchema, type Message } from "@/schema/message.schema"
+import { useEffect, useRef, useState, type SubmitEventHandler } from "react"
 
 export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
+    const [message, setMessage] = useState("")
     const topMessageRef = useRef<HTMLDivElement>(null)
     const bottomMessageRef = useRef<HTMLDivElement>(null)
     const scrollAreaRef = useRef<HTMLDivElement>(null)
+    const messageSendMutation = useSendMessage()
 
     const {
         data: msgData,
@@ -58,12 +60,29 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
         return () => observer.disconnect()
     }, [msgHasNextPage, msgIsFetchingNextPage, msgFetchNextPage])
 
+    const sentMessage: SubmitEventHandler<HTMLFormElement> = async (e) => {
+        e.preventDefault()
+        try {
+            const isValid = messageSentSchema.safeParse({ content: message, receiverId: friendItem.friend.id })
+            if (!isValid.success) {
+                throw isValid.error
+            }
+            messageSendMutation.mutate(isValid.data, {
+                onSuccess: () => {
+                    setMessage("")
+                }
+            })
+        } catch (error) {
+            console.log("error while sending message :: ",error)
+        }
+    }
+
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full overflow-hidden p-1 md:p-0">
             {
                 messageData.length === 0 ?
                     <div>
-                        <p className="text-4xl text-gray-500 p-4">Say Hello to your friend</p>
+                        <p className="text-4xl text-gray-500 p-4">Say Hello to {friendItem.friend.name}</p>
                     </div>
                     :
                     <div className="flex-1 flex items-center justify-center w-full overflow-hidden min-h-0">
@@ -113,17 +132,27 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
                     </div>
             }
             <div className="flex items-end justify-center w-full">
-                <div className="
-                    flex items-end justify-center
-                    gap-4 py-4 px-8
-                    w-full md:max-w-60/100 rounded-xl
-                    bg-gray-200 dark:bg-gray-800
+                <form
+                    onSubmit={sentMessage}
+                    className="
+                        flex items-end justify-center
+                        gap-4 py-4 px-8
+                        w-full md:max-w-60/100 rounded-xl
+                        bg-gray-200 dark:bg-gray-800
                 ">
-                    <Textarea className="w-full min-h-10 max-h-40 border border-gray-500 resize-none" />
-                    <Button className="text-white hover:bg-gray-400 bg-gray-500">
+                    <Textarea
+                    value={message}
+                        placeholder={`Message ${friendItem.friend.name}`}
+                        onChange={(e) => setMessage(e.target.value)}
+                        className="w-full min-h-10 max-h-40 border border-gray-500 resize-none"
+                    />
+                    <Button
+                        type="submit"
+                        className="text-white hover:bg-gray-400 bg-gray-500"
+                    >
                         <SendIcon />
                     </Button>
-                </div>
+                </form>
             </div>
         </div>
     )
