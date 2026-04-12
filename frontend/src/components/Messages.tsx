@@ -7,6 +7,8 @@ import { dateConverter } from "@/utils/dateConverter"
 import { useGetMessage, useSendMessage } from "@/lib/api/hooks/message"
 import { messageSentSchema } from "@/schema/message.schema"
 import { useEffect, useRef, useState, type SubmitEventHandler } from "react"
+import { useSocket } from "@/providers/Socket.provider"
+import { useReceiveMessage, useSentMessage } from "@/lib/socket/hooks/useMessageSocket"
 
 export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
     const [message, setMessage] = useState("")
@@ -14,6 +16,10 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
     const bottomMessageRef = useRef<HTMLDivElement>(null)
     const scrollAreaRef = useRef<HTMLDivElement>(null)
     const messageSendMutation = useSendMessage()
+    const socket = useSocket()
+
+    useSentMessage(friendItem.friend.id)
+    useReceiveMessage()
 
     const {
         data: msgData,
@@ -71,11 +77,16 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
             if (!isValid.success) {
                 throw isValid.error
             }
-            messageSendMutation.mutate(isValid.data, {
-                onSuccess: () => {
-                    setMessage("")
-                }
-            })
+            if (friendItem.friend.status === "offline") {
+                messageSendMutation.mutate(isValid.data, {
+                    onSuccess: () => {
+                        setMessage("")
+                    }
+                })
+            }else{
+                socket.emit("message:create",isValid.data)
+                setMessage("")
+            }
         } catch (error) {
             console.log("error while sending message :: ", error)
         }
