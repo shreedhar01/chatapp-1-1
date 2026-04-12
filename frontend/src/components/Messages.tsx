@@ -5,7 +5,7 @@ import { CheckCheckIcon, CheckIcon, SendIcon } from "lucide-react"
 import { ScrollArea } from "./ui/scroll-area"
 import { dateConverter } from "@/utils/dateConverter"
 import { useGetMessage, useSendMessage } from "@/lib/api/hooks/message"
-import { messageSentSchema, type Message } from "@/schema/message.schema"
+import { messageSentSchema } from "@/schema/message.schema"
 import { useEffect, useRef, useState, type SubmitEventHandler } from "react"
 
 export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
@@ -23,7 +23,11 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
         isLoading: msgIsLoading,
     } = useGetMessage(friendItem.friend.id)
 
-    const messageData: Message[] = msgData?.pages.flatMap(page => page.data) ?? []
+    const messageData = msgData?.
+        pages.
+        slice().
+        reverse().
+        flatMap(page => [...page.data].reverse()) ?? []
 
     const getViewport = () =>
         scrollAreaRef.current?.querySelector<HTMLDivElement>(
@@ -73,9 +77,15 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
                 }
             })
         } catch (error) {
-            console.log("error while sending message :: ",error)
+            console.log("error while sending message :: ", error)
         }
     }
+
+    useEffect(() => {
+        if (messageData.length > 0) {
+            bottomMessageRef.current?.scrollIntoView({ behavior: "smooth" })
+        }
+    }, [messageData.length])
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full overflow-hidden p-1 md:p-0">
@@ -103,7 +113,7 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
                                             </p>
                                         )}
 
-                                        {messageData.reverse().map(v => (
+                                        {messageData.map(v => (
                                             <div
                                                 key={v.id}
                                                 className={`flex py-1 w-full ${v.senderId === friendItem.friend.id ? "justify-start" : "justify-end"}`}
@@ -141,9 +151,15 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
                         bg-gray-200 dark:bg-gray-800
                 ">
                     <Textarea
-                    value={message}
+                        value={message}
                         placeholder={`Message ${friendItem.friend.name}`}
                         onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                e.currentTarget.form?.requestSubmit();
+                            }
+                        }}
                         className="w-full min-h-10 max-h-40 border border-gray-500 resize-none"
                     />
                     <Button

@@ -31,15 +31,18 @@ export function useSendMessage(){
             console.log("res data :: ", response.data.data[0])
             return response.data.data[0] as Content
         },
-        onSuccess: (res)=>{
-            queryClient.setQueryData<InfiniteData<MessageData>>(["message:get"], (old)=>{
+        onSuccess: (res,variables)=>{
+            queryClient.setQueryData<InfiniteData<MessageData>>(["message:get",variables.receiverId], (old)=>{
                 if(!old) return old
                 return{
                     ...old,
-                    pages: old.pages.map((page)=> ({
-                        ...page,
-                        data: page.data.push(res)
-                    }))
+                    pages: old.pages.map((page,index)=> {
+                        if(index !== 0 ) return page
+                        return {
+                            ...page,
+                            data: [res, ...page.data],
+                        }
+                    })
                 }
             })
         }
