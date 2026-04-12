@@ -168,7 +168,7 @@ export async function seedMessageTable() {
         await db
             .insert(message)
             .values({
-                conversation_id: 3,
+                conversation_id: 1,
                 sender_id: mes.sender_id,
                 content: mes.content,
                 created_at: new Date(mes.created_at),
