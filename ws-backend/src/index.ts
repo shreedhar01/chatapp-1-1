@@ -8,7 +8,6 @@ const httpServer = createServer()
 const io = new Server(httpServer,{
     cors: {
         origin: [
-            "http://localhost:3000",
             "http://localhost:5173"
         ],
         credentials: true
@@ -20,5 +19,5 @@ io.on("connection", (socket) => {
 })
 
 httpServer.listen(config.PORT, () => {
-    console.log("Socket.IO server running on :8080")
+    console.log("Socket.IO server running on :: ",config.PORT)
 })
