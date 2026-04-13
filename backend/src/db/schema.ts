@@ -48,6 +48,7 @@ export const conversation = pgTable("conversation", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   user1_id: integer().notNull().references(() => users.id, { onDelete: "cascade" }),
   user2_id: integer().notNull().references(() => users.id, { onDelete: "cascade" }),
+  recent_message_id: integer(),
   created_at: timestamp().defaultNow()
 }, (table) => [
   uniqueIndex("unique_conversation_idx").on(table.user1_id, table.user2_id),

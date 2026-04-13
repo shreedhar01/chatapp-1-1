@@ -8,6 +8,13 @@
       "when": 1775974969989,
       "tag": "0000_omniscient_nekra",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776089529450,
+      "tag": "0001_warm_norrin_radd",
+      "breakpoints": true
     }
   ]
 }
