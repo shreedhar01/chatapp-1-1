@@ -5,14 +5,14 @@ import type { Content } from "@/schema/message.schema";
 
 export function useGetMessage(friendId: number) {
     return useInfiniteQuery({
-        queryKey: ["message:get",friendId],
+        queryKey: ["message:get", friendId],
         queryFn: async ({ pageParam = 1 }): Promise<MessageData> => {
             const response = await api.get("/message", {
-                params: { page:pageParam, limit:10, friendId }
+                params: { page: pageParam, limit: 10, friendId }
             })
             return response.data.data[0] as MessageData
         },
-        getNextPageParam: (lastPage)=>{
+        getNextPageParam: (lastPage) => {
             const pagination = lastPage.pagination
             return pagination.hasNext ? pagination.page + 1 : undefined
         },
@@ -21,23 +21,37 @@ export function useGetMessage(friendId: number) {
 }
 
 
-export function useSendMessage(){
+export function useSendMessage() {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationKey:["message:sent"],
-        mutationFn:async(data:MessageFormate)=>{
-            const response = await api.post("/message/new",data)
+        mutationKey: ["message:sent"],
+        mutationFn: async (data: MessageFormate) => {
+            const response = await api.post("/message/new", data)
             console.log("res data :: ", response.data.data[0])
             return response.data.data[0] as Content
         },
-        onSuccess: (res,variables)=>{
-            queryClient.setQueryData<InfiniteData<MessageData>>(["message:get",variables.receiverId], (old)=>{
-                if(!old) return old
-                return{
+        onSuccess: async (res, variables) => {
+            const isMessageExist = queryClient.getQueryData<InfiniteData<MessageData>>(["message:get", variables.receiverId])
+            if (!isMessageExist) {
+                await queryClient.fetchInfiniteQuery({
+                    queryKey: ["message:get", variables.receiverId],
+                    queryFn: async ({ pageParam = 1 }): Promise<MessageData> => {
+                        const response = await api.get("/message", {
+                            params: { page: pageParam, limit: 10, friendId:variables.receiverId }
+                        })
+                        return response.data.data[0] as MessageData
+                    },
+                    initialPageParam: 1,
+                })
+                return
+            }
+            queryClient.setQueryData<InfiniteData<MessageData>>(["message:get", variables.receiverId], (old) => {
+                if (!old) return old
+                return {
                     ...old,
-                    pages: old.pages.map((page,index)=> {
-                        if(index !== 0 ) return page
+                    pages: old.pages.map((page, index) => {
+                        if (index !== 0) return page
                         return {
                             ...page,
                             data: [res, ...page.data],
