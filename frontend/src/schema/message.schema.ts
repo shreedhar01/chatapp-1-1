@@ -25,6 +25,7 @@ export type MessageData = {
 
 export const messageSentSchema = z.object({
   content: z.string().min(1).max(255),
-  receiverId: z.number()
+  receiverId: z.number(),
+  status: z.enum(["sent", "delivered", "read"]).default("sent")
 })
 export type MessageFormate = z.infer<typeof messageSentSchema>

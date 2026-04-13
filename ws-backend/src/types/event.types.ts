@@ -23,6 +23,7 @@ export type ResponseFriendRequest = z.infer<typeof responseFriendRequestSchema>
 
 export const createMessageSchema = z.object({
   content: z.string().min(1).max(255),
-  receiverId: z.number()
+  receiverId: z.number(),
+  status: z.enum(["sent", "delivered", "read"]).default("delivered")
 })
 export type CreateNewMessage = z.infer<typeof createMessageSchema>

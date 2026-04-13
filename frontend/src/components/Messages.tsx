@@ -83,8 +83,8 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
                         setMessage("")
                     }
                 })
-            }else{
-                socket.emit("message:create",isValid.data)
+            } else {
+                socket.emit("message:create", { ...isValid.data, status: "delivered" })
                 setMessage("")
             }
         } catch (error) {
@@ -92,11 +92,11 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
         }
     }
 
-    useEffect(() => {
-        if (messageData.length > 0) {
-            bottomMessageRef.current?.scrollIntoView({ behavior: "smooth" })
-        }
-    }, [messageData.length])
+    // useEffect(() => {
+    //     if (messageData.length > 0) {
+    //         bottomMessageRef.current?.scrollIntoView({ behavior: "smooth" })
+    //     }
+    // }, [messageData.length])
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full overflow-hidden p-1 md:p-0">

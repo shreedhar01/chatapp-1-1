@@ -49,6 +49,7 @@ export const createNewMessageService = async (messageData: CreateNewMessage, sen
             conversation_id: isConversationExist.id,
             sender_id: senderId,
             content: messageData.content,
+            status: messageData.status
         })
         .returning({
             id: message.id,
@@ -108,8 +109,23 @@ export const getAllMessagesService = async (page: number, limit: number, friendI
 
     const total = Number(isMessage[0]!.count)
 
+    const updateMessage = await Promise.all(
+        isMessage.map(async ({count,...v}) => {
+            if (v.status !== "read" && v.senderId !== userId) {
+                await db
+                    .update(message)
+                    .set({ status: "read" })
+                    .where(eq(message.id, v.id))
+                return {...v, status:"read"}
+            }
+            return v
+        })
+    )
+
+    
+
     return {
-        data: isMessage.map(({ count, ...data }) => data),
+        data: updateMessage,
         pagination: {
             total,
             page,
