@@ -228,7 +228,11 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
             ),
             eq(friendship.status, "accepted")
         ))
-        .orderBy(message.created_at, users.status, friendship.created_at)
+        .orderBy(
+            sql`${message.created_at} DESC NULLS LAST`, 
+            users.status, 
+            friendship.created_at
+        )
         .limit(limit)
         .offset(offset)
 
