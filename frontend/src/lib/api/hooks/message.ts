@@ -21,7 +21,7 @@ export function useGetMessage(friendId: number) {
 }
 
 
-export function useSendMessage() {
+export function useSendMessage(friendId:number) {
     const queryClient = useQueryClient()
 
     return useMutation({
@@ -32,7 +32,7 @@ export function useSendMessage() {
             return response.data.data[0] as Content
         },
         onSuccess: async (res, variables) => {
-            const isMessageExist = queryClient.getQueryData<InfiniteData<MessageData>>(["message:get", variables.receiverId])
+            const isMessageExist = queryClient.getQueryData<InfiniteData<MessageData>>(["message:get", friendId])
             if (!isMessageExist) {
                 await queryClient.fetchInfiniteQuery({
                     queryKey: ["message:get", variables.receiverId],
@@ -46,7 +46,7 @@ export function useSendMessage() {
                 })
                 return
             }
-            queryClient.setQueryData<InfiniteData<MessageData>>(["message:get", variables.receiverId], (old) => {
+            queryClient.setQueryData<InfiniteData<MessageData>>(["message:get", friendId], (old) => {
                 if (!old) return old
                 return {
                     ...old,

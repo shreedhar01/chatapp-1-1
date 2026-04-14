@@ -15,7 +15,7 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
     const topMessageRef = useRef<HTMLDivElement>(null)
     const bottomMessageRef = useRef<HTMLDivElement>(null)
     const scrollAreaRef = useRef<HTMLDivElement>(null)
-    const messageSendMutation = useSendMessage()
+    const messageSendMutation = useSendMessage(friendItem.friend.id)
     const socket = useSocket()
 
     useSentMessage(friendItem.friend.id)
@@ -45,7 +45,7 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
         if (!msgIsLoading) {
             bottomMessageRef.current?.scrollIntoView({ behavior: "instant" })
         }
-    }, [msgIsLoading])
+    }, [msgIsLoading,friendItem.friend.id])
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -92,11 +92,11 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
         }
     }
 
-    // useEffect(() => {
-    //     if (messageData.length > 0) {
-    //         bottomMessageRef.current?.scrollIntoView({ behavior: "smooth" })
-    //     }
-    // }, [messageData.length])
+    useEffect(() => {
+        if (messageData.length > 0) {
+            bottomMessageRef.current?.scrollIntoView({ behavior: "smooth" })
+        }
+    }, [messageData.length])
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full overflow-hidden p-1 md:p-0">
