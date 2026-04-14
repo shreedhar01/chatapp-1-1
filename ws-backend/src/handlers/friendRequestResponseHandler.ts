@@ -1,5 +1,5 @@
 import type { Socket } from "socket.io";
-import { responseFriendRequestSchema, type ResponseFriendRequest } from "../types/event.types.js";
+import { responseFriendRequestSchema, type ResponseFriendRequest } from "../validation/friend.validation.js";
 import axios from "axios";
 import { config } from "../config/env.js";
 import { sendEvents } from "../events/sendEvents.js";

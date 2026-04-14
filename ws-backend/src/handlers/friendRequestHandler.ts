@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import type { AddFriendEvent } from "../types/event.types.js";
+import type { AddFriendEvent } from "../validation/friend.validation.js";
 import axios from "axios";
 import { config } from "../config/env.js";
 import { sendEvents } from "../events/sendEvents.js";
