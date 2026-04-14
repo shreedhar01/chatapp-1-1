@@ -1,6 +1,6 @@
 import { and, desc, eq, ilike, inArray, ne, notExists, or, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { friendship, users } from "../db/schema.js";
+import { conversation, friendship, message, users } from "../db/schema.js";
 import type { FriendRequest, ResponseFriendRequest, SearchFriend } from "../types/friends.types.js";
 import { ApiError } from "../utils/ApiError.js";
 import { alias } from "drizzle-orm/pg-core";
@@ -180,6 +180,12 @@ export const responseFriendRequestService = async (data: ResponseFriendRequest) 
 
 export const getAllFriendService = async (limit: number, page: number, userId: number) => {
     const offset = (page - 1) * limit
+    const friendIdExpr = sql<number>`
+            case 
+                when ${friendship.user_id} = ${userId} then ${friendship.friend_id}
+                else ${friendship.user_id}
+            end
+            `;
     const friends = await db
         .select({
             id: friendship.id,
@@ -190,14 +196,31 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
                 status: users.status,
                 lastSeen: users.last_seen,
             },
+            conversation: {
+                id: conversation.id,
+            },
+            recentMessage: {
+                id: message.id,
+                senderId: message.sender_id,
+                content: message.content,
+                type: message.type,
+                status: message.status,
+                createdAt: message.created_at
+            },
             count: sql<number>`count(*) over()`
         })
         .from(friendship)
         .leftJoin(users, sql<number>`
-            ${users.id} = case 
-            when ${friendship.user_id} = ${userId} then ${friendship.friend_id}
-            else ${friendship.user_id}
-            end`)
+            ${users.id} = ${friendIdExpr}`)
+        .leftJoin(conversation, and(
+            eq(conversation.user1_id,
+                sql<number>`least(${userId}, ${friendIdExpr})`
+            ),
+            eq(conversation.user2_id,
+                sql<number>`greatest(${userId}, ${friendIdExpr} )`
+            )
+        ))
+        .leftJoin(message, eq(message.id, conversation.recent_message_id))
         .where(and(
             or(
                 eq(friendship.user_id, userId),
@@ -205,7 +228,7 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
             ),
             eq(friendship.status, "accepted")
         ))
-        .orderBy(users.status, friendship.created_at)
+        .orderBy(message.created_at, users.status, friendship.created_at)
         .limit(limit)
         .offset(offset)
 
@@ -216,7 +239,13 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
     const total = Number(friends[0]!.count)
 
     return {
-        data: friends.map(({ count, ...data }) => data),
+        data: friends.map(({ count, recentMessage, conversation, ...data }) => ({
+            ...data,
+            conversation:{
+                conversationId:conversation?.id,
+                recentMessage
+            }
+        })),
         pagination: {
             total,
             page,
@@ -230,7 +259,7 @@ export const getAllFriendService = async (limit: number, page: number, userId: n
 export const getAllActiveFriendsService = async (userId: number) => {
     const u2 = alias(users, "u2")
     const allFriends = await db
-        .select({id:u2.id})
+        .select({ id: u2.id })
         .from(users)
         .innerJoin(friendship, or(
             eq(friendship.user_id, users.id),
@@ -246,8 +275,8 @@ export const getAllActiveFriendsService = async (userId: number) => {
             eq(u2.status, "active")
         ))
 
-    if(allFriends.length === 0){
-        throw new ApiError(404,"No active friends found")
+    if (allFriends.length === 0) {
+        throw new ApiError(404, "No active friends found")
     }
 
     return [...allFriends.map(v => v.id)]
