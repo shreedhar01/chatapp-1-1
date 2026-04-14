@@ -1,4 +1,5 @@
 import z from "zod";
+import type { Content } from "./message.schema";
 
 export const searchFriendSchema = z.object({
     name : z.string().nonempty()
@@ -50,6 +51,10 @@ export type AcceptedFriend = {
 export type FriendItem = {
   id: number;
   friend: AcceptedFriend;
+  conversation?: {
+    conversationId: number,
+    recentMessage: Content
+  }
 }
 
 export interface DataWrapper {
