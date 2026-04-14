@@ -12,7 +12,7 @@ export const setActiveConversationId = (socket:Socket)=>{
                 throw isValid.error.issues.map(v => ({path:v.path[0], message: v.message}))
             }
             socket.data.activeConversationId = data.activeConversationId
-            console.log("socket.data :: ",socket.data)
+            // console.log("socket.data :: ",socket.data)
         } catch (error) {
             console.log("Error while setting active conversation id :: ",error)
         }
