@@ -67,7 +67,10 @@ export const createNewMessageService = async (messageData: CreateNewMessage, sen
         .set({ recent_message_id: isMessageCreated.id })
         .where(eq(conversation.id, isConversationExist.id))
 
-    return isMessageCreated
+    return {
+        conversationId: isConversationExist.id,
+        message:isMessageCreated
+    }
 }
 
 
