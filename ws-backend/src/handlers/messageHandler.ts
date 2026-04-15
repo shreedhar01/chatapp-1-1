@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { createMessageSchema, type CreateNewMessage } from "../validation/friend.validation.js";
+import { createMessageSchema, type CreateNewMessage } from "../validation/message.validation.js";
 import axios from "axios";
 import { sendEvents } from "../events/sendEvents.js";
 

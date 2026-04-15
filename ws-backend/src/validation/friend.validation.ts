@@ -4,11 +4,6 @@ export interface AddFriendEvent{
     to: string
 }
 
-export interface SendMessageEvent {
-  to: string
-  message: string
-}
-
 
 export const responseFriendRequestSchema = z.object({
     id: z.number(),
@@ -19,11 +14,3 @@ export const responseFriendRequestSchema = z.object({
     })
 })
 export type ResponseFriendRequest = z.infer<typeof responseFriendRequestSchema>
-
-
-export const createMessageSchema = z.object({
-  content: z.string().min(1).max(255),
-  receiverId: z.number(),
-  status: z.enum(["sent", "delivered", "read"]).default("delivered")
-})
-export type CreateNewMessage = z.infer<typeof createMessageSchema>
