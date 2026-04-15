@@ -2,20 +2,20 @@ import { useGetAllFriends } from "@/lib/api/hooks/friends";
 import { ScrollArea } from "./ui/scroll-area"
 import { useEffect, useRef, useState } from "react";
 import { Messages } from "./Messages";
-import { ArrowLeftIcon, MessagesSquareIcon } from "lucide-react";
+import { ArrowLeftIcon, CheckCheckIcon, CheckIcon, MessagesSquareIcon } from "lucide-react";
 import type { FriendItem } from "@/schema/friend.schema";
 import { useFriendOffline, useFriendOnline } from "@/lib/socket/hooks/useFriendSocket";
 import { dateConverter } from "@/utils/dateConverter";
 
 export const ChatSection = () => {
-    const [friendId, setFriendId] = useState<FriendItem | null>(()=>{
+    const [friendId, setFriendId] = useState<FriendItem | null>(() => {
         const saved = sessionStorage.getItem("friend:message")
         return saved ? JSON.parse(saved) as FriendItem : null
     })
 
-    useEffect(()=>{
+    useEffect(() => {
         sessionStorage.setItem("friend:message", JSON.stringify(friendId))
-    },[friendId])
+    }, [friendId])
 
     const friendSentialRef = useRef<HTMLDivElement>(null)
 
@@ -56,30 +56,56 @@ export const ChatSection = () => {
                                 <div
                                     key={v.id}
                                     onClick={() => setFriendId(v)}
-                                    className={` ${friendId?.id === v.id ? "dark:bg-black bg-white" : "bg-gray-300 dark:bg-gray-800"} flex items-center justify-between  p-4 rounded-xl dark:hover:bg-black hover:bg-white`}
+                                    className={` ${friendId?.id === v.id ? "dark:bg-black bg-white" : "bg-gray-300 dark:bg-gray-800"} flex flex-col items-center justify-between  p-4 rounded-xl dark:hover:bg-black hover:bg-white`}
                                 >
-                                    <p>{v.friend.name}</p>
-                                    <div className="flex flex-col gap-2 items-end">
-                                        {v.friend.status === "active" ?
-                                            <div className="flex items-center justify-center gap-4">
-                                                <p className="text-gray-500 text-xs">online</p>
-                                                <p className="h-2 w-2 bg-green-500 rounded-full"></p>
-                                            </div>
-                                            :
-                                            <div className="flex items-center justify-center gap-4">
-                                                <p className="text-gray-500 text-xs">offline</p>
-                                                <p className="h-2 w-2 bg-red-500 rounded-full"></p>
-                                            </div>
-                                        }
+                                    <div className="flex items-center justify-between w-full ">
+                                        <p>{v.friend.name}</p>
+                                        <div className="flex flex-col gap-2 items-end">
+                                            {v.friend.status === "active" ?
+                                                <div className="flex items-center justify-center gap-4">
+                                                    {
+                                                        v.conversation?.recentMessage?.createdAt ?
+                                                            <p className="text-gray-500 text-xs">
+                                                                {v.conversation?.recentMessage ? dateConverter(String(v.conversation?.recentMessage?.createdAt)) : "none"}
+                                                            </p> : null
+                                                    }
+                                                    <p className="h-2 w-2 bg-green-500 rounded-full"></p>
+                                                </div>
+                                                :
+                                                <div className="flex items-center justify-center gap-4">
+                                                    {
+                                                        v.conversation?.recentMessage?.createdAt ?
+                                                            <p className="text-gray-500 text-xs">
+                                                                {dateConverter(String(v.conversation?.recentMessage?.createdAt))}
+                                                            </p> :
+                                                            <p className="text-gray-500 text-xs">
+                                                                {dateConverter(String(v.friend.lastSeen))}
+                                                            </p>
+                                                    }
+                                                    <p className="h-2 w-2 bg-red-500 rounded-full"></p>
+                                                </div>
+                                            }
 
+
+
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between w-full ">
                                         {
-                                            v.friend.status === "offline" ?
-                                                <p className="text-gray-500 text-xs">
-                                                    {v.friend.lastSeen ? dateConverter(String(v.friend.lastSeen)) : "none"}
-                                                </p> : null
-
+                                            v.conversation?.recentMessage ?
+                                                <div className="flex items-center justify-between w-full">
+                                                    <p className={`${v.friend.id === v.conversation.recentMessage.senderId && v.conversation.recentMessage.status !== "read" ? "" : "text-gray-500 text-xs"} `}>
+                                                        {v.conversation.recentMessage.content}
+                                                    </p>
+                                                    {
+                                                        v?.conversation?.recentMessage?.status === "sent" ?
+                                                            <CheckIcon className="size-4" /> :
+                                                            v?.conversation?.recentMessage?.status === "delivered" ?
+                                                                <CheckCheckIcon className="size-4" /> :
+                                                                <CheckCheckIcon className="size-4 text-green-500" />
+                                                    }
+                                                </div> : ""
                                         }
-
                                     </div>
                                 </div>
                             )
@@ -107,7 +133,7 @@ export const ChatSection = () => {
                             <div className="flex flex-col flex-1 h-full min-h-0">
                                 <div className={`${friendId ? "flex" : "hidden"} items-center justify-between border-b dark:border-white rounded-t-2xl py-2 px-4`}>
                                     <button
-                                    title="Back"
+                                        title="Back"
                                         onClick={() => setFriendId(null)}
 
                                     >
