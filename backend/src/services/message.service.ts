@@ -63,6 +63,10 @@ export const createNewMessageService = async (messageData: CreateNewMessage, sen
         throw new ApiError(500, "Message not created")
     }
 
+    await db.update(conversation)
+        .set({ recent_message_id: isMessageCreated.id })
+        .where(eq(conversation.id, isConversationExist.id))
+
     return isMessageCreated
 }
 
@@ -110,19 +114,19 @@ export const getAllMessagesService = async (page: number, limit: number, friendI
     const total = Number(isMessage[0]!.count)
 
     const updateMessage = await Promise.all(
-        isMessage.map(async ({count,...v}) => {
+        isMessage.map(async ({ count, ...v }) => {
             if (v.status !== "read" && v.senderId !== userId) {
                 await db
                     .update(message)
                     .set({ status: "read" })
                     .where(eq(message.id, v.id))
-                return {...v, status:"read"}
+                return { ...v, status: "read" }
             }
             return v
         })
     )
 
-    
+
 
     return {
         data: updateMessage,
