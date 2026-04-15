@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQueryClient, type InfiniteData } from
 import { api } from "../axios";
 import type { MessageData, MessageFormate } from "@/schema/message.schema";
 import type { Content } from "@/schema/message.schema";
+import type { DataWrapper } from "@/schema/friend.schema";
 
 export function useGetMessage(friendId: number) {
     return useInfiniteQuery({
@@ -21,7 +22,7 @@ export function useGetMessage(friendId: number) {
 }
 
 
-export function useSendMessage(friendId:number) {
+export function useSendMessage(friendId: number) {
     const queryClient = useQueryClient()
 
     return useMutation({
@@ -38,7 +39,7 @@ export function useSendMessage(friendId:number) {
                     queryKey: ["message:get", variables.receiverId],
                     queryFn: async ({ pageParam = 1 }): Promise<MessageData> => {
                         const response = await api.get("/message", {
-                            params: { page: pageParam, limit: 10, friendId:variables.receiverId }
+                            params: { page: pageParam, limit: 10, friendId: variables.receiverId }
                         })
                         return response.data.data[0] as MessageData
                     },
@@ -57,6 +58,29 @@ export function useSendMessage(friendId:number) {
                             data: [res, ...page.data],
                         }
                     })
+                }
+            })
+            queryClient.setQueryData<InfiniteData<DataWrapper>>(["friend:accepted"], (old) => {
+                if (!old) return old
+                return {
+                    ...old,
+                    pages: old.pages.map(data =>
+                    ({
+                        ...data,
+                        data: data.data.map(friendItem => {
+                            if (friendItem.friend.id !== friendId) return friendItem
+                            if (!friendItem.conversation) return friendItem
+                            return {
+                                ...friendItem,
+                                conversation: {
+                                    ...friendItem.conversation,
+                                    recentMessage: res,
+                                }
+                            }
+
+                        })
+                    })
+                    )
                 }
             })
         }
