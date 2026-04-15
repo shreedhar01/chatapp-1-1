@@ -45,7 +45,7 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
         if (!msgIsLoading) {
             bottomMessageRef.current?.scrollIntoView({ behavior: "instant" })
         }
-    }, [msgIsLoading,friendItem.friend.id])
+    }, [msgIsLoading, friendItem.friend.id])
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -77,7 +77,7 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
             if (!isValid.success) {
                 throw isValid.error
             }
-            if (friendItem.friend.status === "offline") {
+            if (friendItem.friend.status === "offline" || !friendItem.conversation) {
                 messageSendMutation.mutate(isValid.data, {
                     onSuccess: () => {
                         setMessage("")
@@ -97,6 +97,16 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
             bottomMessageRef.current?.scrollIntoView({ behavior: "smooth" })
         }
     }, [messageData.length])
+
+    // setting active converstaion id in socket.data
+    useEffect(() => {
+        if (friendItem.conversation?.conversationId) {
+            socket.emit("message:active_conversation", { activeConversationId: friendItem.conversation.conversationId })
+        }
+        if (friendItem.conversation?.recentMessage?.status !== "read") {
+            socket.emit("message:read", { friendId: friendItem.friend.id })
+        }
+    }, [friendItem.friend.id])
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full overflow-hidden p-1 md:p-0">
