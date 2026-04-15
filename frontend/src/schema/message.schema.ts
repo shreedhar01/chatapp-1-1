@@ -9,6 +9,11 @@ export type Content = {
   createdAt: string;
 };
 
+export type NewMessage = {
+  conversationId:number,
+  message:Content
+}
+
 type Pagination = {
   total: string;
   page: number;

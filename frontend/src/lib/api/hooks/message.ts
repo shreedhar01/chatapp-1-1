@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { api } from "../axios";
-import type { MessageData, MessageFormate } from "@/schema/message.schema";
+import type { MessageData, MessageFormate, NewMessage } from "@/schema/message.schema";
 import type { Content } from "@/schema/message.schema";
 import type { DataWrapper } from "@/schema/friend.schema";
 
@@ -30,9 +30,9 @@ export function useSendMessage(friendId: number) {
         mutationFn: async (data: MessageFormate) => {
             const response = await api.post("/message/new", data)
             console.log("res data :: ", response.data.data[0])
-            return response.data.data[0] as Content
+            return response.data.data[0] as NewMessage
         },
-        onSuccess: async (res, variables) => {
+        onSuccess: async ({ conversationId, message: res }, variables) => {
             const isMessageExist = queryClient.getQueryData<InfiniteData<MessageData>>(["message:get", friendId])
             if (!isMessageExist) {
                 await queryClient.fetchInfiniteQuery({
@@ -72,10 +72,15 @@ export function useSendMessage(friendId: number) {
                             if (!friendItem.conversation) return friendItem
                             return {
                                 ...friendItem,
-                                conversation: {
-                                    ...friendItem.conversation,
-                                    recentMessage: res,
-                                }
+                                conversation: friendItem.conversation
+                                    ? {
+                                        ...friendItem.conversation,
+                                        recentMessage: res,
+                                    }
+                                    : {
+                                        conversationId,
+                                        recentMessage: res
+                                    }
                             }
 
                         })
