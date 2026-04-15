@@ -104,7 +104,7 @@ export const ChatSection = () => {
                                                                 <CheckCheckIcon className="size-4" /> :
                                                                 <CheckCheckIcon className="size-4 text-green-500" />
                                                     }
-                                                </div> : ""
+                                                </div> : null
                                         }
                                     </div>
                                 </div>

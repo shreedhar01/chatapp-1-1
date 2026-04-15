@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { api } from "../axios";
 import type { MessageData, MessageFormate, NewMessage } from "@/schema/message.schema";
-import type { Content } from "@/schema/message.schema";
 import type { DataWrapper } from "@/schema/friend.schema";
 
 export function useGetMessage(friendId: number) {
@@ -45,47 +44,40 @@ export function useSendMessage(friendId: number) {
                     },
                     initialPageParam: 1,
                 })
-                return
+            } else {
+                queryClient.setQueryData<InfiniteData<MessageData>>(["message:get", friendId], (old) => {
+                    if (!old) return old
+                    return {
+                        ...old,
+                        pages: old.pages.map((page, index) => {
+                            if (index !== 0) return page
+                            return {
+                                ...page,
+                                data: [res, ...page.data],
+                            }
+                        })
+                    }
+                })
             }
-            queryClient.setQueryData<InfiniteData<MessageData>>(["message:get", friendId], (old) => {
-                if (!old) return old
-                return {
-                    ...old,
-                    pages: old.pages.map((page, index) => {
-                        if (index !== 0) return page
-                        return {
-                            ...page,
-                            data: [res, ...page.data],
-                        }
-                    })
-                }
-            })
+
             queryClient.setQueryData<InfiniteData<DataWrapper>>(["friend:accepted"], (old) => {
                 if (!old) return old
                 return {
                     ...old,
-                    pages: old.pages.map(data =>
-                    ({
+                    pages: old.pages.map(data => ({
                         ...data,
                         data: data.data.map(friendItem => {
                             if (friendItem.friend.id !== friendId) return friendItem
-                            if (!friendItem.conversation) return friendItem
                             return {
                                 ...friendItem,
-                                conversation: friendItem.conversation
-                                    ? {
-                                        ...friendItem.conversation,
-                                        recentMessage: res,
-                                    }
-                                    : {
-                                        conversationId,
-                                        recentMessage: res
-                                    }
+                                conversation: {
+                                    ...friendItem.conversation,
+                                    conversationId: friendItem.conversation?.conversationId ?? conversationId,
+                                    recentMessage: res,
+                                }
                             }
-
                         })
-                    })
-                    )
+                    }))
                 }
             })
         }
