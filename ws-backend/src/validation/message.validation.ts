@@ -14,7 +14,6 @@ export type CreateNewMessage = z.infer<typeof createMessageSchema>
 
 export const readMessageSchema = z.object({
   friendId: z.number(),
-  activeConversationId: z.number(),
-  messageId: z.number()
+  activeConversationId: z.number()
 })
 export type ReadMessage = z.infer<typeof readMessageSchema>
