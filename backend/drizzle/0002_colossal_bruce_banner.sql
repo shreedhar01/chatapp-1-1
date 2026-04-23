@@ -1,0 +1,1 @@
+ALTER TABLE "conversation" ADD COLUMN "latest_read_message_created_at" timestamp;

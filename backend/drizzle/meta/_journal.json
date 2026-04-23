@@ -15,6 +15,13 @@
       "when": 1776089529450,
       "tag": "0001_warm_norrin_radd",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776939663037,
+      "tag": "0002_colossal_bruce_banner",
+      "breakpoints": true
     }
   ]
 }
