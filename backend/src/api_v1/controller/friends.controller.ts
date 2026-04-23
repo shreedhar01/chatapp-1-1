@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { friendRequestSchema, responseFriendRequestSchema, searchFriendSchema } from "../../types/friends.types.js";
+import { friendRequestSchema, responseFriendRequestSchema, searchFriendSchema } from "../../validation/friends.validation.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { friendRequestService, getAllActiveFriendsService, getAllFriendRequestService, getAllFriendService, responseFriendRequestService, searchFriendService } from "../../services/friend.service.js";

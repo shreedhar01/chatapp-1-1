@@ -1,7 +1,7 @@
 import { and, desc, eq, ilike, inArray, ne, notExists, or, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { conversation, friendship, message, users } from "../db/schema.js";
-import type { FriendRequest, ResponseFriendRequest, SearchFriend } from "../types/friends.types.js";
+import type { FriendRequest, ResponseFriendRequest, SearchFriend } from "../validation/friends.validation.js";
 import { ApiError } from "../utils/ApiError.js";
 import { alias } from "drizzle-orm/pg-core";
 
