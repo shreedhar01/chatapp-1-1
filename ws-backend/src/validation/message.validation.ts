@@ -11,3 +11,10 @@ export const createMessageSchema = z.object({
   status: z.enum(["sent", "delivered", "read"]).default("delivered")
 })
 export type CreateNewMessage = z.infer<typeof createMessageSchema>
+
+export const readMessageSchema = z.object({
+  friendId: z.number(),
+  activeConversationId: z.number(),
+  messageId: z.number()
+})
+export type ReadMessage = z.infer<typeof readMessageSchema>
