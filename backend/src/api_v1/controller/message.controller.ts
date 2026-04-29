@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { createNewMessageService, getAllMessagesService } from "../../services/message.service.js";
+import { createNewMessageService, getAllMessagesService, updateMessageStatusService } from "../../services/message.service.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
-import { createNewMessageSchema } from "../../types/message.types.js";
+import { createNewMessageSchema, readMessageSchema } from "../../validation/message.validation.js";
 import { ApiError } from "../../utils/ApiError.js";
 
 export const createNewMessageController = asyncHandler(async (req: Request, res: Response) => {
@@ -34,5 +34,18 @@ export const getAllMessagesController = asyncHandler(async (req: Request, res: R
 
     return res.status(200).json(
         new ApiResponse(200, [message], "all message fetch successfully")
+    )
+})
+
+
+export const updateMessageStatusController = asyncHandler(async (req: Request, res: Response) => {
+    const isValid = readMessageSchema.safeParse(req.body)
+    if (!isValid.success) {
+        const err = isValid.error.issues.map((v) => ({ path: v.path, message: v.message }))
+        throw new ApiError(422, "validation error", err)
+    }
+    const statusUpdatedMessage = await updateMessageStatusService(isValid.data)
+    return res.status(200).json(
+        new ApiResponse(200, [statusUpdatedMessage], "all message fetch successfully")
     )
 })

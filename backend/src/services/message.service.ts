@@ -1,7 +1,7 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, gt, lte, ne, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { conversation, friendship, message } from "../db/schema.js";
-import type { CreateNewMessage } from "../types/message.types.js";
+import type { CreateNewMessage, ReadMessage } from "../validation/message.validation.js";
 import { ApiError } from "../utils/ApiError.js";
 
 export const createNewMessageService = async (messageData: CreateNewMessage, senderId: number) => {
@@ -69,7 +69,7 @@ export const createNewMessageService = async (messageData: CreateNewMessage, sen
 
     return {
         conversationId: isConversationExist.id,
-        message:isMessageCreated
+        message: isMessageCreated
     }
 }
 
@@ -80,7 +80,8 @@ export const getAllMessagesService = async (page: number, limit: number, friendI
 
     const [isConversationExist] = await db
         .select({
-            id: conversation.id
+            id: conversation.id,
+            lastReadMessageCreatedAt: conversation.latest_read_message_created_at
         })
         .from(conversation)
         .where(and(
@@ -90,6 +91,16 @@ export const getAllMessagesService = async (page: number, limit: number, friendI
     if (!isConversationExist) {
         throw new ApiError(404, "Conversation not exist")
     }
+
+    await db
+        .update(message)
+        .set({ status: "read" })
+        .where(and(
+            eq(message.conversation_id, isConversationExist.id),
+            gt(message.created_at, isConversationExist.lastReadMessageCreatedAt ?? new Date(0)),
+            lte(message.created_at, new Date()),
+            ne(message.sender_id, userId)
+        ))
 
     const offset = (page - 1) * limit
 
@@ -111,28 +122,16 @@ export const getAllMessagesService = async (page: number, limit: number, friendI
         .offset(offset)
 
     if (isMessage.length === 0) {
-        throw new ApiError(404, "Message not found")
+        return {
+            data: [],
+            pagination: { total: 0, page, limit, totalPages: 0, hasNext: false, hasPrev: false }
+        }
     }
 
     const total = Number(isMessage[0]!.count)
 
-    const updateMessage = await Promise.all(
-        isMessage.map(async ({ count, ...v }) => {
-            if (v.status !== "read" && v.senderId !== userId) {
-                await db
-                    .update(message)
-                    .set({ status: "read" })
-                    .where(eq(message.id, v.id))
-                return { ...v, status: "read" }
-            }
-            return v
-        })
-    )
-
-
-
     return {
-        data: updateMessage,
+        data: isMessage.map(({ count, ...v }) => v),
         pagination: {
             total,
             page,
@@ -142,4 +141,48 @@ export const getAllMessagesService = async (page: number, limit: number, friendI
             hasPrev: page > 1
         }
     }
+}
+
+
+export const updateMessageStatusService = async (data: ReadMessage) => {
+    const [isConversation] = await db
+        .select({
+            recentMessageId: conversation.recent_message_id,
+            latestReadMessageCreatedAt: conversation.latest_read_message_created_at,
+            recetnMessageCreatedAt: message.created_at
+        })
+        .from(conversation)
+        .leftJoin(message, eq(message.id, conversation.recent_message_id))
+        .where(
+            eq(conversation.id, data.activeConversationId)
+        )
+        .limit(1)
+    if (!isConversation) {
+        throw new ApiError(400, "No conversation exist with this id")
+    }
+
+    const updatedData = await db.
+        update(message).
+        set({ status: "read" }).
+        where(
+            and(
+                eq(message.conversation_id, data.activeConversationId),
+                eq(message.sender_id, data.friendId),
+                gt(message.created_at, isConversation?.latestReadMessageCreatedAt ?? new Date()),
+                lte(message.created_at, isConversation?.recetnMessageCreatedAt ?? new Date())
+            )
+        )
+        .returning({
+            id: message.id,
+            content: message.content,
+            type: message.type,
+            status: message.status,
+            senderId: message.sender_id,
+            createdAt: message.created_at
+        })
+    if (updatedData.length === 0) {
+        throw new ApiError(500, "Status not updated")
+    }
+
+    return updatedData
 }
