@@ -22,6 +22,13 @@
       "when": 1776939663037,
       "tag": "0002_colossal_bruce_banner",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777467668958,
+      "tag": "0003_loud_arclight",
+      "breakpoints": true
     }
   ]
 }
