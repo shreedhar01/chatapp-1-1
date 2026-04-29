@@ -44,7 +44,7 @@ export const updateMessageStatusController = asyncHandler(async (req: Request, r
         const err = isValid.error.issues.map((v) => ({ path: v.path, message: v.message }))
         throw new ApiError(422, "validation error", err)
     }
-    const statusUpdatedMessage = await updateMessageStatusService(isValid.data)
+    const statusUpdatedMessage = await updateMessageStatusService(isValid.data, req.user!.id)
     return res.status(200).json(
         new ApiResponse(200, [statusUpdatedMessage], "all message fetch successfully")
     )

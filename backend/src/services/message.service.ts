@@ -77,11 +77,13 @@ export const createNewMessageService = async (messageData: CreateNewMessage, sen
 export const getAllMessagesService = async (page: number, limit: number, friendId: number, userId: number) => {
     const user1 = Math.min(friendId, userId)
     const user2 = Math.max(friendId, userId)
+    const isUserId = userId === user1
 
     const [isConversationExist] = await db
         .select({
             id: conversation.id,
-            lastReadMessageCreatedAt: conversation.latest_read_message_created_at
+            user1lastReadAt: conversation.user1_last_read_at,
+            user2lastReadAt: conversation.user2_last_read_at,
         })
         .from(conversation)
         .where(and(
@@ -92,15 +94,25 @@ export const getAllMessagesService = async (page: number, limit: number, friendI
         throw new ApiError(404, "Conversation not exist")
     }
 
+    const myRecentRead = isUserId ? isConversationExist.user1lastReadAt : isConversationExist.user2lastReadAt
+
     await db
         .update(message)
         .set({ status: "read" })
         .where(and(
             eq(message.conversation_id, isConversationExist.id),
-            gt(message.created_at, isConversationExist.lastReadMessageCreatedAt ?? new Date(0)),
+            gt(message.created_at, myRecentRead ?? new Date(0)),
             lte(message.created_at, new Date()),
             ne(message.sender_id, userId)
         ))
+
+    await db
+        .update(conversation)
+        .set(isUserId
+            ? { user1_last_read_at: new Date() }
+            : { user2_last_read_at: new Date() }
+        )
+        .where(eq(conversation.id, isConversationExist.id))
 
     const offset = (page - 1) * limit
 
@@ -144,11 +156,16 @@ export const getAllMessagesService = async (page: number, limit: number, friendI
 }
 
 
-export const updateMessageStatusService = async (data: ReadMessage) => {
+export const updateMessageStatusService = async (data: ReadMessage, userId: number) => {
+    const user1 = Math.min(data.friendId, userId)
+    const user2 = Math.max(data.friendId, userId)
+    const isUserId = user1 === userId
+
     const [isConversation] = await db
         .select({
             recentMessageId: conversation.recent_message_id,
-            latestReadMessageCreatedAt: conversation.latest_read_message_created_at,
+            user1lastReadAt: conversation.user1_last_read_at,
+            user2lastReadAt: conversation.user2_last_read_at,
             recetnMessageCreatedAt: message.created_at
         })
         .from(conversation)
@@ -161,6 +178,8 @@ export const updateMessageStatusService = async (data: ReadMessage) => {
         throw new ApiError(400, "No conversation exist with this id")
     }
 
+    const myRecentRead = isUserId ? isConversation.user1lastReadAt : isConversation.user2lastReadAt
+
     const updatedData = await db.
         update(message).
         set({ status: "read" }).
@@ -168,7 +187,7 @@ export const updateMessageStatusService = async (data: ReadMessage) => {
             and(
                 eq(message.conversation_id, data.activeConversationId),
                 eq(message.sender_id, data.friendId),
-                gt(message.created_at, isConversation?.latestReadMessageCreatedAt ?? new Date()),
+                gt(message.created_at, myRecentRead ?? new Date()),
                 lte(message.created_at, isConversation?.recetnMessageCreatedAt ?? new Date())
             )
         )
@@ -183,6 +202,14 @@ export const updateMessageStatusService = async (data: ReadMessage) => {
     if (updatedData.length === 0) {
         throw new ApiError(500, "Status not updated")
     }
+
+    await db
+        .update(conversation)
+        .set(isUserId
+            ? { user1_last_read_at: new Date() }
+            : { user2_last_read_at: new Date() }
+        )
+        .where(eq(conversation.id, data.activeConversationId))
 
     return updatedData
 }
