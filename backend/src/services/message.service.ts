@@ -208,7 +208,7 @@ export const updateMessageStatusService = async (data: ReadMessage, userId: numb
             createdAt: message.created_at
         })
 
-    console.log(updatedData)
+    // console.log(updatedData)
     if (updatedData.length === 0) {
         throw new ApiError(500, "Status not updated")
     }
