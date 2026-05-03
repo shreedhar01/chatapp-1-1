@@ -53,7 +53,7 @@ export type FriendItem = {
   friend: AcceptedFriend;
   conversation?: {
     conversationId?: number,
-    recentMessage: Content | null
+    recentMessage?: Content | null
   }
 }
 

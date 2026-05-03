@@ -5,10 +5,10 @@ import { CheckCheckIcon, CheckIcon, SendIcon } from "lucide-react"
 import { ScrollArea } from "./ui/scroll-area"
 import { dateConverter } from "@/utils/dateConverter"
 import { useGetMessage, useSendMessage } from "@/lib/api/hooks/message"
-import { messageSentSchema } from "@/schema/message.schema"
+import { messageSentSchema, type Content, type MessageData } from "@/schema/message.schema"
 import { useEffect, useRef, useState, type SubmitEventHandler } from "react"
 import { useSocket } from "@/providers/Socket.provider"
-import { useReceiveMessage, useSentMessage } from "@/lib/socket/hooks/useMessageSocket"
+import { useMessageReadStatus, useReceiveMessage, useSentMessage } from "@/lib/socket/hooks/useMessageSocket"
 
 export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
     const [message, setMessage] = useState("")
@@ -20,6 +20,7 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
 
     useSentMessage(friendItem.friend.id)
     useReceiveMessage()
+    useMessageReadStatus(friendItem.friend.id)
 
     const {
         data: msgData,
@@ -99,14 +100,29 @@ export const Messages = ({ friendItem }: { friendItem: FriendItem }) => {
     }, [messageData.length])
 
     // setting active converstaion id in socket.data
+    // console.log("friend data :: ",friendItem)
     useEffect(() => {
-        if (friendItem.conversation?.conversationId) {
-            socket.emit("message:active_conversation", { activeConversationId: friendItem.conversation.conversationId })
-        }
-        if (friendItem.conversation?.recentMessage?.status !== "read") {
-            socket.emit("message:read", { friendId: friendItem.friend.id })
+        if (friendItem?.conversation?.conversationId) {
+            socket.emit("message:active_conversation", {
+                activeConversationId: friendItem.conversation.conversationId
+            })
         }
     }, [friendItem.friend.id])
+
+    useEffect(() => {
+        const handleFocus = () => {
+            if (friendItem?.conversation?.conversationId) {
+                socket.emit("message:read", {
+                    friendId: friendItem.friend.id,
+                    activeConversationId: friendItem.conversation.conversationId,
+                });
+            }
+        };
+
+        window.addEventListener("focus", handleFocus);
+        return () => window.removeEventListener("focus", handleFocus);
+    }, [friendItem, socket]);
+
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full overflow-hidden p-1 md:p-0">

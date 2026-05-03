@@ -93,7 +93,7 @@ export function readMessageHandler(socket: Socket) {
             })
 
             const resData = response.data.data[0]
-            console.log("message:read ::", resData)
+            // console.log("message:read ::", resData)
             sendEvents(String(isDataValid.data.friendId), "message:you_read", {
                 conversationId: data.activeConversationId,
                 messages: resData
