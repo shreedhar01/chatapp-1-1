@@ -96,23 +96,32 @@ export const getAllMessagesService = async (page: number, limit: number, friendI
 
     const myRecentRead = isUserId ? isConversationExist.user1lastReadAt : isConversationExist.user2lastReadAt
 
-    await db
+    const updatedData = await db
         .update(message)
         .set({ status: "read" })
         .where(and(
             eq(message.conversation_id, isConversationExist.id),
             gt(message.created_at, myRecentRead ?? new Date(0)),
-            lte(message.created_at, new Date()),
             ne(message.sender_id, userId)
         ))
+        .returning({
+            id: message.id,
+            createdAt: message.created_at
+        })
 
-    await db
-        .update(conversation)
-        .set(isUserId
-            ? { user1_last_read_at: new Date() }
-            : { user2_last_read_at: new Date() }
-        )
-        .where(eq(conversation.id, isConversationExist.id))
+    if (updatedData.length > 0) {
+        const latestRead = updatedData.reduce((acc, msg) =>
+            (msg.createdAt ?? new Date()) > (acc!.createdAt ?? new Date()) ? msg : acc
+            , updatedData[0])
+
+        await db
+            .update(conversation)
+            .set(isUserId
+                ? { user1_last_read_at: latestRead?.createdAt }
+                : { user2_last_read_at: latestRead?.createdAt }
+            )
+            .where(eq(conversation.id, isConversationExist.id))
+    }
 
     const offset = (page - 1) * limit
 
@@ -178,7 +187,7 @@ export const updateMessageStatusService = async (data: ReadMessage, userId: numb
         throw new ApiError(400, "No conversation exist with this id")
     }
 
-    const myRecentRead = isUserId ? isConversation.user1lastReadAt : isConversation.user2lastReadAt
+    const myRecentRead = isUserId ? isConversation.user1lastReadAt : isConversation.user2lastReadAt  
 
     const updatedData = await db.
         update(message).
@@ -187,8 +196,7 @@ export const updateMessageStatusService = async (data: ReadMessage, userId: numb
             and(
                 eq(message.conversation_id, data.activeConversationId),
                 eq(message.sender_id, data.friendId),
-                gt(message.created_at, myRecentRead ?? new Date()),
-                lte(message.created_at, isConversation?.recetnMessageCreatedAt ?? new Date())
+                gt(message.created_at, myRecentRead ?? new Date(0)),
             )
         )
         .returning({
@@ -199,15 +207,21 @@ export const updateMessageStatusService = async (data: ReadMessage, userId: numb
             senderId: message.sender_id,
             createdAt: message.created_at
         })
+
+    console.log(updatedData)
     if (updatedData.length === 0) {
         throw new ApiError(500, "Status not updated")
     }
 
+    const latestRead = updatedData.reduce((acc, msg) =>
+        (msg.createdAt ?? new Date()) > (acc!.createdAt ?? new Date()) ? msg : acc
+        , updatedData[0])
+
     await db
         .update(conversation)
         .set(isUserId
-            ? { user1_last_read_at: new Date() }
-            : { user2_last_read_at: new Date() }
+            ? { user1_last_read_at: latestRead?.createdAt }
+            : { user2_last_read_at: latestRead?.createdAt }
         )
         .where(eq(conversation.id, data.activeConversationId))
 
