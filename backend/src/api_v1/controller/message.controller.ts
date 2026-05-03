@@ -46,6 +46,6 @@ export const updateMessageStatusController = asyncHandler(async (req: Request, r
     }
     const statusUpdatedMessage = await updateMessageStatusService(isValid.data, req.user!.id)
     return res.status(200).json(
-        new ApiResponse(200, [statusUpdatedMessage], "all message fetch successfully")
+        new ApiResponse(200, statusUpdatedMessage, "all message fetch successfully")
     )
 })
