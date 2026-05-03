@@ -22,7 +22,7 @@ export function createMessageHandler(socket: Socket) {
             })
 
             const resData = response.data.data[0]
-            console.log(resData)
+            // console.log(resData)
             const receiverSockets = getConnection(String(isDataValid.data.receiverId))
             // console.log([...receiverSockets!])
             const receiverIsActive = receiverSockets && [...receiverSockets].some(
