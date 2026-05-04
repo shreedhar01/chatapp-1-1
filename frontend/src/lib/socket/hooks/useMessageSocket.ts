@@ -83,7 +83,6 @@ export function useReceiveMessage() {
                         ...data,
                         data: data.data.map(friendItem => {
                             if (friendItem.friend.id !== msgData.senderId) return friendItem
-                            if (!friendItem.conversation) return friendItem
                             return {
                                 ...friendItem,
                                 conversation: {
