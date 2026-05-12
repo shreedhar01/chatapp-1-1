@@ -13,8 +13,8 @@ import messageRouter from "./api_v1/routes/message.routes.js"
 const app = express()
 
 const allowedOrigins = [
-    "http://localhost:3000",
-    "http://localhost:5173"
+    process.env.FRONTEND_URL || "",
+    process.env.WS_URL || ""
 ];
 
 app.use(cors({

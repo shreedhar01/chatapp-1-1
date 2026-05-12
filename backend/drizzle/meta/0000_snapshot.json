@@ -1,5 +1,5 @@
 {
-  "id": "15a8710c-7f5a-4b6b-9b95-a9c1e203b75b",
+  "id": "836be4d5-cd9e-4e16-bed2-8513f56e7a72",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -36,6 +36,24 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "recent_message_id": {
+          "name": "recent_message_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user1_last_read_at": {
+          "name": "user1_last_read_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user2_last_read_at": {
+          "name": "user2_last_read_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",

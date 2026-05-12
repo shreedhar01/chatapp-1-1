@@ -6,6 +6,9 @@ CREATE TABLE "conversation" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "conversation_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"user1_id" integer NOT NULL,
 	"user2_id" integer NOT NULL,
+	"recent_message_id" integer,
+	"user1_last_read_at" timestamp,
+	"user2_last_read_at" timestamp,
 	"created_at" timestamp DEFAULT now(),
 	CONSTRAINT "ordered_users" CHECK ("conversation"."user1_id" < "conversation"."user2_id")
 );

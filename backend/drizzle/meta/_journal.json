@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1775974969989,
-      "tag": "0000_omniscient_nekra",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1776089529450,
-      "tag": "0001_warm_norrin_radd",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1776939663037,
-      "tag": "0002_colossal_bruce_banner",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1777467668958,
-      "tag": "0003_loud_arclight",
+      "when": 1778577434716,
+      "tag": "0000_watery_robbie_robertson",
       "breakpoints": true
     }
   ]
