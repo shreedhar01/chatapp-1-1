@@ -11,7 +11,7 @@
     "db:push": "npx drizzle-kit push",
     "db:generate": "npx drizzle-kit generate",
     "db:migrate": "npx drizzle-kit migrate",
-    "db:seed":"tsx -r dotenv/config src/db/seed/index.ts"
+    "db:seed": "tsx -r dotenv/config src/db/seed/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -38,6 +38,7 @@
     "@types/node": "^25.3.3",
     "@types/pg": "^8.18.0",
     "drizzle-kit": "^0.31.9",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
   }
 }
